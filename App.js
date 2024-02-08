@@ -1,25 +1,35 @@
 import { StatusBar } from 'expo-status-bar'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, SafeAreaView, View } from 'react-native'
 import { useFonts, Poppins_300Light, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins'
+import Screen from './Main/Screen'
+import colors from './ColorPalette'
+
+const { LIGHT_GREEN_BG, DARK_BLUE } = colors
 
 export default () => {
-	let [fontsLoaded, fontError] = useFonts({ Poppins_300Light, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold })
+	let [fontsLoaded, fontError] = useFonts({
+		'light': Poppins_300Light,
+		'regular': Poppins_400Regular,
+		'medium': Poppins_500Medium,
+		'semi-bold': Poppins_600SemiBold,
+		'bold': Poppins_700Bold
+	})
   
 	if(!fontsLoaded && !fontError) return null
 
 	return (
 		<View style={styles.container}>
-			<Text style={{ fontFamily: 'Poppins_300Light' }}>Open up App.js to start working on your app!</Text>
-			<StatusBar style="auto" />
+			<SafeAreaView style={{ flex: 1 }}>
+				<StatusBar hidden />
+				<Screen />
+			</SafeAreaView>
 		</View>
 	)
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+	container: {
+		flex: 1,
+		backgroundColor: LIGHT_GREEN_BG
+	}
+})

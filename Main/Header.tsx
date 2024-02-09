@@ -1,14 +1,19 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { Pressable, Image, StyleSheet, Text, View } from 'react-native'
 import SettingsIcon from '../assets/header-icons/settings.png'
 import CashIcon from '../assets/header-icons/cash.png'
 import GemIcon from '../assets/header-icons/gem.png'
 import MegaBucksIcon from '../assets/header-icons/mega_bucks.png'
 import TagsIcon from '../assets/header-icons/tags.png'
-import colors from '../ColorPalette'
+import colors from '../assets/ColorPalette'
 
 const { DARK_BLUE, WHITE } = colors
 
-export default () => {
+type HeaderProps = {
+    buyQuantity: string,
+    handleBuyQuantity: () => void
+}
+
+export default ({ buyQuantity, handleBuyQuantity }: HeaderProps) => {
     return (
         <View style={styles.header}>
             <View style={[styles.layer, { marginBottom: 10 }]}>
@@ -28,13 +33,13 @@ export default () => {
                     <Text style={styles.smallText}>1.305 <Text style={{ fontSize: 11 }}>MILLION</Text></Text>
                 </View>
                 <View style={styles.tags}>
-                    <View>
+                    <Pressable onPress={handleBuyQuantity} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
                         <Image source={TagsIcon} style={styles.tagsIcon} />
                         <View style={styles.tagTextBox}>
                             <Text style={[styles.tagText, { fontFamily: 'semi-bold', fontSize: 11, lineHeight: 13 }]}>BUY</Text>
-                            <Text style={styles.tagText}>x100</Text>
+                            <Text style={styles.tagText}>{['max', 'next'].includes(buyQuantity) ? buyQuantity.toUpperCase() : 'x' + buyQuantity}</Text>
                         </View>
-                    </View>
+                    </Pressable>
                 </View>
             </View>
         </View>
@@ -43,9 +48,11 @@ export default () => {
 
 const styles = StyleSheet.create({
     header: {
-        paddingVertical: 15,
+        justifyContent: 'center',
         paddingHorizontal: 12,
-        backgroundColor: DARK_BLUE
+        backgroundColor: DARK_BLUE,
+        height: 108,
+        zIndex: 2,
     },
     layer: {
         flexDirection: 'row',

@@ -1,21 +1,26 @@
 import { StyleSheet, View, Text, Image, Dimensions } from 'react-native'
 import Hotdog from '../assets/business-icons/hotdog_128.png'
 import HotdogManager from '../assets/workers/hotdog_stand_manager.png'
-import colors from '../ColorPalette'
+import colors from '../assets/ColorPalette'
 
 const { TURQUOISE, GREEN, WHITE, BLACK, GREY } = colors
 const width = Dimensions.get('window').width
 
-export default ({ id, title }) => {
+type BusinessCardProps = {
+    id: number,
+    title: string
+}
+
+export default ({ id, title }: BusinessCardProps) => {
     return (
-        <View style={[styles.card, { marginBottom: id === '9' ? 0 : 30 }]}>
+        <View style={[styles.card, { marginBottom: id === 9 ? 30 : 20 }]}>
             <View style={[styles.layer, { marginBottom: 10 }]}>
                 <View style={styles.imageBox}>
                     <Image source={Hotdog} style={styles.image} />
                 </View>
                 <View style={styles.detailsBox}>
                     <View style={{ marginBottom: 10 }}>
-                        <Text style={styles.title}>{title.toUpperCase()}</Text>
+                        <Text style={styles.title} numberOfLines={1}>{title.toUpperCase()}</Text>
                     </View>
                     <View style={styles.info}>
                         <View style={styles.infoBox}>
@@ -80,8 +85,8 @@ const styles = StyleSheet.create({
     },
     title: {
         fontFamily: 'bold',
-        fontSize: 15,
-        color: WHITE
+        fontSize: 14,
+        color: WHITE,
     },
     info: {
         flexDirection: 'row',

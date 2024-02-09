@@ -1,0 +1,1 @@
+declare module '*.png' // this line allows us to import png files in our project

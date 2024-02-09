@@ -2,9 +2,9 @@ import { StatusBar } from 'expo-status-bar'
 import { StyleSheet, SafeAreaView, View } from 'react-native'
 import { useFonts, Poppins_300Light, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins'
 import Screen from './Main/Screen'
-import colors from './ColorPalette'
+import colors from './assets/ColorPalette'
 
-const { LIGHT_GREEN_BG, DARK_BLUE } = colors
+const { LIGHT_GREEN_BG } = colors
 
 export default () => {
 	let [fontsLoaded, fontError] = useFonts({

@@ -21,6 +21,8 @@ import SpaceDark from '../assets/business-icons/space_dark_128.png'
 import HotdogManager from '../assets/workers/hotdog_stand_manager.png'
 import colors from '../assets/ColorPalette'
 import formulateNumber from '../functions/formulateNumber'
+import milestones from '../Data/milestones'
+import calculatePercentage from '../functions/calculatePercentage'
 
 const { TURQUOISE, GREEN, WHITE, RED, DARK_RED, BLACK, GREY } = colors
 const width = Dimensions.get('window').width
@@ -55,29 +57,34 @@ export default ({ money, id, title, level, init_cost, coefficient }: BusinessCar
         </View>
     )
 
-    let level_progress = 0 // calculate the % progress of the levels (in relation to the next milestone)
-    let next_upgrade_cost = formulateNumber(init_cost * (coefficient ** level)) // calculate the cost of the next upgrade
+    let level_progress = calculatePercentage(milestones, level) // calculate the % progress of the levels (in relation to the next milestone)
+    let next_upgrade_cost = formulateNumber(init_cost * (coefficient ** level)).split(" ") // calculate the cost of the next upgrade
     let next_worker = 0 // calculate the cost of the next worker, and get their image (if all hired, then display the manager and 'HIRED')
+
+    console.log(title, level_progress)
 
     return (
         <View style={[styles.card, { marginBottom: id === 9 ? 30 : 20 }]}>
-            <View style={[styles.layer, { marginBottom: 10 }]}>
+            <View style={[styles.layer, { marginBottom: 12 }]}>
                 <View style={styles.imageBox}>
                     <Image source={icons[id].icon} style={[styles.image, icons[id].style]} />
                 </View>
                 <View style={styles.detailsBox}>
                     <View style={styles.titleBox}>
-                        <Text style={styles.title} numberOfLines={1}>{title.toUpperCase()}</Text>
+                        <Text style={styles.title} numberOfLines={1}>{'GLOBAL STREAMING PLATFORM'}</Text>
+                        <View style={styles.levelBox}>
+                            <View style={styles.levelProgress}></View>
+                            <Text style={styles.levelText}>{level}</Text>
+                        </View>
                     </View>
                     <View style={styles.info}>
-                        <View style={styles.infoBox}>
-                            <View style={styles.infoProgress}></View>
-                            <Text style={styles.infoText}>{level}</Text>
-                            <Text style={[styles.infoText, { fontSize: 11, lineHeight: 13 }]}>LEVEL</Text>
-                        </View>
-                        <View style={[styles.infoBox, { backgroundColor: GREEN }]}>
-                            <Text style={styles.infoText}>x1</Text>
-                            <Text style={[styles.infoText, { fontSize: 11, lineHeight: 13 }]} numberOfLines={1}>${next_upgrade_cost}</Text>
+                        <View style={[styles.infoBox, { backgroundColor: GREEN, justifyContent: next_upgrade_cost[1] ? 'space-between' : 'center' }]}>
+                            <View style={styles.levelCount}>
+                                <Text style={styles.levelCountText}>x1</Text>
+                            </View>
+                            <Text style={styles.infoText}>${next_upgrade_cost[1] ? next_upgrade_cost[0] : parseInt(next_upgrade_cost[0])}</Text>
+                            {next_upgrade_cost[1] &&
+                            <Text style={[styles.infoText, styles.infoMinor]} numberOfLines={1}>{next_upgrade_cost[1]}</Text>}
                         </View>
                         <View style={[styles.infoBox, { backgroundColor: GREEN }]}>
                             <View style={styles.worker}>
@@ -85,17 +92,17 @@ export default ({ money, id, title, level, init_cost, coefficient }: BusinessCar
                                     <Image source={HotdogManager} style={styles.hotdogManager} />
                                 </View>
                             </View>
-                            <Text style={[styles.infoText, { fontSize: 11, lineHeight: 13 }]}>HIRED</Text>
+                            <Text style={[styles.infoText, styles.infoMinor]}>HIRED</Text>
                         </View>
                     </View>
                 </View>
             </View>
             <View style={styles.layer}>
-                <View style={[styles.timeBox, { width: width - 190 }]}>
+                <View style={styles.timeBox}>
                     <View style={styles.timeProgress}></View>
                     <Text style={styles.timeText}>$1.2K / sec</Text>
                 </View>
-                <View style={[styles.timeBox, { width: 100, marginLeft: 10 }]}>
+                <View style={[styles.infoBox, { justifyContent: 'center' }]}>
                     <Text style={styles.timeText}>00:00:00</Text>
                 </View>
             </View>
@@ -105,8 +112,8 @@ export default ({ money, id, title, level, init_cost, coefficient }: BusinessCar
 
 const styles = StyleSheet.create({
     card: {
-        height: 158,
-        paddingVertical: 15,
+        height: 160,
+        paddingVertical: 18,
         paddingHorizontal: 25,
         borderRadius: 20,
         backgroundColor: TURQUOISE
@@ -178,25 +185,56 @@ const styles = StyleSheet.create({
     detailsBox: {
         justifyContent: 'space-between',
         width: width - 186,
-        height: 75,
+        height: 72,
     },
     titleBox: {
-        marginBottom: 10
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     title: {
         fontFamily: 'bold',
         fontSize: 14,
         color: WHITE,
+        marginRight: 5,
+        maxWidth: (width - 236),
+    },
+    levelBox: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 45,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: GREY
+    },
+    levelProgress: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: 19.8,
+        height: 20,
+        borderRadius: 10,
+        borderTopRightRadius: 0,
+        borderBottomRightRadius: 0,
+        backgroundColor: GREEN
+    },
+    levelText: {
+        fontFamily: 'bold',
+        fontSize: 12,
+        lineHeight: 13,
+        textAlign: 'center',
+        color: BLACK,
+        paddingTop: 3
     },
     info: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     infoBox: {
         justifyContent: 'space-between',
         alignItems: 'center',
-        width: 60,
+        width: (width - 196) / 2,
         height: 40,
         paddingVertical: 6,
         borderRadius: 10,
@@ -215,10 +253,33 @@ const styles = StyleSheet.create({
     },
     infoText: {
         fontFamily: 'bold',
-        fontSize: 14,
-        lineHeight: 16,
+        fontSize: 15,
+        lineHeight: 17,
         textAlign: 'center',
         color: BLACK
+    },
+    infoMinor: {
+        fontSize: 9,
+        lineHeight: 11,
+    },
+    levelCount: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        top: -11,
+        right: -6,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 6,
+        backgroundColor: RED
+    },
+    levelCountText: {
+        fontFamily: 'bold',
+        fontSize: 10,
+        lineHeight: 11,
+        paddingTop: 2,
+        textAlign: 'center',
+        color: WHITE
     },
     worker: {
         height: 16,
@@ -239,10 +300,11 @@ const styles = StyleSheet.create({
     timeBox: {
         justifyContent: 'center',
         alignItems: 'center',
-        width: 60,
+        width: (width / 2) + 8,
         height: 40,
         paddingVertical: 6,
         borderRadius: 10,
+        marginRight: 10,
         backgroundColor: GREY
     },
     timeProgress: {
@@ -256,14 +318,16 @@ const styles = StyleSheet.create({
     },
     timeText: {
         fontFamily: 'semi-bold',
-        fontSize: 18,
+        fontSize: 15,
+        lineHeight: 17,
+        paddingTop: 2,
         textAlign: 'center',
         color: BLACK
     },
     darkCard: {
         flexDirection: 'row',
-        height: 158,
-        paddingVertical: 15,
+        height: 160,
+        paddingVertical: 18,
         paddingHorizontal: 25,
         borderRadius: 20,
         borderColor: RED,

@@ -5,39 +5,46 @@ import GemIcon from '../assets/header-icons/gem.png'
 import MegaBucksIcon from '../assets/header-icons/mega_bucks.png'
 import TagsIcon from '../assets/header-icons/tags.png'
 import colors from '../assets/ColorPalette'
+import formulateNumber from '../functions/formulateNumber'
 
 const { DARK_BLUE, WHITE } = colors
 
 type HeaderProps = {
+    money: number,
+    gems: number,
+    mega_bucks: number,
     buyQuantity: string,
     handleBuyQuantity: () => void
 }
 
-export default ({ buyQuantity, handleBuyQuantity }: HeaderProps) => {
+export default ({ money, gems, mega_bucks, buyQuantity, handleBuyQuantity }: HeaderProps) => {
+    let forumlated_money = formulateNumber(money).split(" ")
+    let forumlated_mega_bucks = formulateNumber(mega_bucks).split(" ")
+
     return (
         <View style={styles.header}>
             <View style={[styles.layer, { marginBottom: 10 }]}>
                 <View style={styles.box}>
                     <Image source={CashIcon} style={styles.cashIcon} />
-                    <Text style={styles.text}>$73.382 <Text style={{ fontSize: 16 }}>UNDECILLION</Text></Text>
+                    <Text style={styles.text}>${forumlated_money[0]}{forumlated_money[1] ? <Text style={{ fontSize: 16 }}> {forumlated_money[1]}</Text> : null}</Text>
                 </View>
                 <Image source={SettingsIcon} style={styles.settingsIcon} />
             </View>
             <View style={[styles.layer, { justifyContent: 'flex-start' }]}>
                 <View style={[styles.box, { marginLeft: 2, marginRight: 20 }]}>
                     <Image source={GemIcon} style={styles.gemIcon} />
-                    <Text style={styles.smallText}>57</Text>
+                    <Text style={styles.smallText}>{gems}</Text>
                 </View>
                 <View style={styles.box}>
                     <Image source={MegaBucksIcon} style={styles.mbIcon} />
-                    <Text style={styles.smallText}>1.305 <Text style={{ fontSize: 11 }}>MILLION</Text></Text>
+                    <Text style={styles.smallText}>{forumlated_mega_bucks[0]}{forumlated_mega_bucks[1] ? <Text style={{ fontSize: 11 }}> {forumlated_mega_bucks[1]}</Text> : null}</Text>
                 </View>
                 <View style={styles.tags}>
                     <Pressable onPress={handleBuyQuantity} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
                         <Image source={TagsIcon} style={styles.tagsIcon} />
                         <View style={styles.tagTextBox}>
                             <Text style={[styles.tagText, { fontFamily: 'semi-bold', fontSize: 11, lineHeight: 13 }]}>BUY</Text>
-                            <Text style={styles.tagText}>{['max', 'next'].includes(buyQuantity) ? buyQuantity.toUpperCase() : 'x' + buyQuantity}</Text>
+                            <Text style={styles.tagText}>{['MAX', 'NEXT'].includes(buyQuantity) ? buyQuantity : 'x' + buyQuantity}</Text>
                         </View>
                     </Pressable>
                 </View>

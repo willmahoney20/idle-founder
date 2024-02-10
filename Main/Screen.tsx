@@ -6,23 +6,27 @@ import Businesses from '../Data/businesses'
 import Tabs from './Tabs'
 import useStore from '../store'
 
-const buy_quantities = ['1', '10', '100', 'next', 'max'] // the possible values for the tags icon in the header
+const buy_quantities = ['1', '10', '100', 'NEXT', 'MAX'] // the possible values for the tags icon in the header
 
 export default () => {
-    const { businesses, updateBusiness } = useStore()
+    const { money, gems, mega_bucks, businesses, updateBusiness } = useStore()
     const [buyQuantity, setBuyQuantity] = useState<string>('1')
 
-    const handleBuyQuantity = () => setBuyQuantity(prev => prev === 'max' ? '1' : buy_quantities[buy_quantities.indexOf(prev) + 1])
+    const handleBuyQuantity = () => setBuyQuantity(prev => prev === 'MAX' ? '1' : buy_quantities[buy_quantities.indexOf(prev) + 1])
 
     return (
         <View style={styles.container}>
-            <Header buyQuantity={buyQuantity} handleBuyQuantity={handleBuyQuantity} />
+            <Header money={money} gems={gems} mega_bucks={mega_bucks} buyQuantity={buyQuantity} handleBuyQuantity={handleBuyQuantity} />
 
             <ScrollView style={styles.cardContainer} showsVerticalScrollIndicator={false}>
-                {Businesses.map(business => <BusinessCard
+                {Businesses.map((business, index) => <BusinessCard
                     key={business.id}
+                    money={money}
                     id={business.id}
                     title={business.name}
+                    level={businesses[index].level}
+                    init_cost={business.init_cost}
+                    coefficient={business.coefficient}
                 />)}
             </ScrollView>
 

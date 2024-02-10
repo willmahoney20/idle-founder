@@ -11,7 +11,15 @@ interface BusinessProps {
 }
 
 const initialState = {
-    businesses: Array.from({ length: 10 }, (_, index) => ({ id: index, level: 1, multiplyer: 1, time_divisor: 1 })) as BusinessProps[]
+    money: 0,
+    gems: 0,
+    mega_bucks: 0,
+    businesses: Array.from({ length: 10 }, (_, index) => ({
+        id: index,
+        level: index === 0 ? 1 : 0, // set the level of the hotdog stand to 1, but all other businesses should be set to 0, as the user doesn't own them
+        multiplyer: 1,
+        time_divisor: 1
+    })) as BusinessProps[]
 }
 
 export default create(

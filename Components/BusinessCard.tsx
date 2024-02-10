@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, Image, Dimensions } from 'react-native'
+import { StyleSheet, Pressable, View, Text, Image, Dimensions } from 'react-native'
 import Hotdog from '../assets/business-icons/hotdog_128.png'
 import Laundromat from '../assets/business-icons/laundromat_128.png'
 import LaundromatDark from '../assets/business-icons/laundromat_dark_128.png'
@@ -20,16 +20,45 @@ import Space from '../assets/business-icons/space_128.png'
 import SpaceDark from '../assets/business-icons/space_dark_128.png'
 import HotdogManager from '../assets/workers/hotdog_stand_manager.png'
 import colors from '../assets/ColorPalette'
+import formulateNumber from '../functions/formulateNumber'
 
-const { TURQUOISE, GREEN, WHITE, BLACK, GREY } = colors
+const { TURQUOISE, GREEN, WHITE, RED, DARK_RED, BLACK, GREY } = colors
 const width = Dimensions.get('window').width
 
 type BusinessCardProps = {
+    money: number,
     id: number,
-    title: string
+    title: string,
+    level: number,
+    init_cost: number,
+    coefficient: number
 }
 
-export default ({ id, title }: BusinessCardProps) => {
+export default ({ money, id, title, level, init_cost, coefficient }: BusinessCardProps) => {
+    // if the user doesn't own this business, we need to display a different card
+    if(level < 1) return (
+        <View style={[styles.darkCard, { marginBottom: id === 9 ? 30 : 20, borderWidth: money > init_cost ? 6 : 0 }]}>
+            <View style={styles.darkImageBox}>
+                <View style={styles.darkImageWrap}>
+                    <Image source={money > init_cost ? icons[id].icon : icons[id].dark_icon} style={[styles.darkImage, icons[id].style]} />
+                </View>
+            </View>
+            <View style={styles.darkDetailsBox}>
+                <Text style={styles.darkCost}>${formulateNumber(init_cost)}</Text>
+                <Text style={styles.darkTitle} numberOfLines={1}>{title}</Text>
+                <Pressable>
+                    <View style={[styles.darkBtn, money > init_cost ? styles.buyableBtn : null]}>
+                        <Text style={[styles.darkBtnText, { color: money > init_cost ? WHITE : BLACK }]}>BUY BUSINESS</Text>
+                    </View>
+                </Pressable>
+            </View>
+        </View>
+    )
+
+    let level_progress = 0 // calculate the % progress of the levels (in relation to the next milestone)
+    let next_upgrade_cost = formulateNumber(init_cost * (coefficient ** level)) // calculate the cost of the next upgrade
+    let next_worker = 0 // calculate the cost of the next worker, and get their image (if all hired, then display the manager and 'HIRED')
+
     return (
         <View style={[styles.card, { marginBottom: id === 9 ? 30 : 20 }]}>
             <View style={[styles.layer, { marginBottom: 10 }]}>
@@ -43,12 +72,12 @@ export default ({ id, title }: BusinessCardProps) => {
                     <View style={styles.info}>
                         <View style={styles.infoBox}>
                             <View style={styles.infoProgress}></View>
-                            <Text style={styles.infoText}>36</Text>
+                            <Text style={styles.infoText}>{level}</Text>
                             <Text style={[styles.infoText, { fontSize: 11, lineHeight: 13 }]}>LEVEL</Text>
                         </View>
                         <View style={[styles.infoBox, { backgroundColor: GREEN }]}>
-                            <Text style={styles.infoText}>X1</Text>
-                            <Text style={[styles.infoText, { fontSize: 11, lineHeight: 13 }]}>$16.2K</Text>
+                            <Text style={styles.infoText}>x1</Text>
+                            <Text style={[styles.infoText, { fontSize: 11, lineHeight: 13 }]} numberOfLines={1}>${next_upgrade_cost}</Text>
                         </View>
                         <View style={[styles.infoBox, { backgroundColor: GREEN }]}>
                             <View style={styles.worker}>
@@ -76,6 +105,7 @@ export default ({ id, title }: BusinessCardProps) => {
 
 const styles = StyleSheet.create({
     card: {
+        height: 158,
         paddingVertical: 15,
         paddingHorizontal: 25,
         borderRadius: 20,
@@ -228,6 +258,69 @@ const styles = StyleSheet.create({
         fontFamily: 'semi-bold',
         fontSize: 18,
         textAlign: 'center',
+        color: BLACK
+    },
+    darkCard: {
+        flexDirection: 'row',
+        height: 158,
+        paddingVertical: 15,
+        paddingHorizontal: 25,
+        borderRadius: 20,
+        borderColor: RED,
+        backgroundColor: GREY
+    },
+    darkImageBox: {
+        minWidth: 106,
+        width: 106,
+        height: '100%',
+    },
+    darkImageWrap: {
+        position: 'absolute',
+        left: 0,
+        height: '100%',
+        justifyContent: 'center',
+    },
+    darkImage: {
+        width: 96,
+        height: 96,
+    },
+    darkDetailsBox: {
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        height: '100%',
+        width: width - 186,
+    },
+    darkCost: {
+        fontFamily: 'bold',
+        fontSize: 24,
+        lineHeight: 26,
+        marginBottom: 6,
+        color: BLACK,
+    },
+    darkTitle: {
+        fontFamily: 'bold',
+        fontSize: 16,
+        lineHeight: 18,
+        marginBottom: 8,
+        color: BLACK
+    },
+    darkBtn: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 3,
+        borderColor: BLACK,
+        borderRadius: 10,
+        backgroundColor: GREY,
+        paddingHorizontal: 15,
+        height: 40
+    },
+    buyableBtn: {
+        backgroundColor: RED,
+        borderColor: DARK_RED
+    },
+    darkBtnText: {
+        fontFamily: 'bold',
+        fontSize: 14,
         color: BLACK
     },
 })

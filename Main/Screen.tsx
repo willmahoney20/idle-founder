@@ -4,11 +4,13 @@ import Header from './Header'
 import BusinessCard from '../Components/BusinessCard'
 import Businesses from '../Data/businesses'
 import Tabs from './Tabs'
+import useStore from '../store'
 
-const buy_quantities = ['1', '10', '100', 'next', 'max']
+const buy_quantities = ['1', '10', '100', 'next', 'max'] // the possible values for the tags icon in the header
 
 export default () => {
-    const [buyQuantity, setBuyQuantity] = useState<string>('next')
+    const { businesses, updateBusiness } = useStore()
+    const [buyQuantity, setBuyQuantity] = useState<string>('1')
 
     const handleBuyQuantity = () => setBuyQuantity(prev => prev === 'max' ? '1' : buy_quantities[buy_quantities.indexOf(prev) + 1])
 

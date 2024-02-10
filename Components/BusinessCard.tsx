@@ -1,5 +1,23 @@
 import { StyleSheet, View, Text, Image, Dimensions } from 'react-native'
 import Hotdog from '../assets/business-icons/hotdog_128.png'
+import Laundromat from '../assets/business-icons/laundromat_128.png'
+import LaundromatDark from '../assets/business-icons/laundromat_dark_128.png'
+import Comic from '../assets/business-icons/comic_128.png'
+import ComicDark from '../assets/business-icons/comic_dark_128.png'
+import FastFood from '../assets/business-icons/fast_food_128.png'
+import FastFoodDark from '../assets/business-icons/fast_food_dark_128.png'
+import Fitness from '../assets/business-icons/fitness_128.png'
+import FitnessDark from '../assets/business-icons/fitness_dark_128.png'
+import Movie from '../assets/business-icons/movie_128.png'
+import MovieDark from '../assets/business-icons/movie_dark_128.png'
+import Sports from '../assets/business-icons/stadium_128.png'
+import SportsDark from '../assets/business-icons/stadium_dark_128.png'
+import Airline from '../assets/business-icons/airline_128.png'
+import AirlineDark from '../assets/business-icons/airline_dark_128.png'
+import Streaming from '../assets/business-icons/streaming_128.png'
+import StreamingDark from '../assets/business-icons/streaming_dark_128.png'
+import Space from '../assets/business-icons/space_128.png'
+import SpaceDark from '../assets/business-icons/space_dark_128.png'
 import HotdogManager from '../assets/workers/hotdog_stand_manager.png'
 import colors from '../assets/ColorPalette'
 
@@ -16,10 +34,10 @@ export default ({ id, title }: BusinessCardProps) => {
         <View style={[styles.card, { marginBottom: id === 9 ? 30 : 20 }]}>
             <View style={[styles.layer, { marginBottom: 10 }]}>
                 <View style={styles.imageBox}>
-                    <Image source={Hotdog} style={styles.image} />
+                    <Image source={icons[id].icon} style={[styles.image, icons[id].style]} />
                 </View>
                 <View style={styles.detailsBox}>
-                    <View style={{ marginBottom: 10 }}>
+                    <View style={styles.titleBox}>
                         <Text style={styles.title} numberOfLines={1}>{title.toUpperCase()}</Text>
                     </View>
                     <View style={styles.info}>
@@ -79,9 +97,61 @@ const styles = StyleSheet.create({
         width: 96,
         height: 96,
     },
+    hotdogIcon: {
+        width: 96,
+        height: 96,
+    },
+    laundromatIcon: {
+        bottom: -1,
+        left: -16,
+        width: 107,
+        height: 107,
+    },
+    comicIcon: {
+        width: 102,
+        height: 102,
+    },
+    fastFoodIcon: {
+        width: 96,
+        height: 96,
+    },
+    fitnessIcon: {
+        width: 100,
+        height: 100,
+    },
+    movieIcon: {
+        left: -4,
+        width: 98,
+        height: 98,
+    },
+    sportsIcon: {
+        left: -2,
+        bottom: -12,
+        width: 98,
+        height: 98,
+    },
+    airlineIcon: {
+        left: -6,
+        bottom: -8,
+        width: 104,
+        height: 104,
+    },
+    streamingIcon: {
+        left: -3,
+        width: 96,
+        height: 96,
+    },
+    spaceIcon: {
+        width: 100,
+        height: 100,
+    },
     detailsBox: {
+        justifyContent: 'space-between',
         width: width - 186,
         height: 75,
+    },
+    titleBox: {
+        marginBottom: 10
     },
     title: {
         fontFamily: 'bold',
@@ -161,3 +231,16 @@ const styles = StyleSheet.create({
         color: BLACK
     },
 })
+
+const icons = [
+    { icon: Hotdog, style: styles.hotdogIcon },
+    { icon: Laundromat, dark_icon: LaundromatDark, style: styles.laundromatIcon },
+    { icon: Comic, dark_icon: ComicDark, style: styles.comicIcon },
+    { icon: FastFood, dark_icon: FastFoodDark, style: styles.fastFoodIcon },
+    { icon: Fitness, dark_icon: FitnessDark, style: styles.fitnessIcon },
+    { icon: Movie, dark_icon: MovieDark, style: styles.movieIcon },
+    { icon: Sports, dark_icon: SportsDark, style: styles.sportsIcon },
+    { icon: Airline, dark_icon: AirlineDark, style: styles.airlineIcon },
+    { icon: Streaming, dark_icon: StreamingDark, style: styles.streamingIcon },
+    { icon: Space, dark_icon: SpaceDark, style: styles.spaceIcon }
+]

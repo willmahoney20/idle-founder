@@ -1,5 +1,5 @@
 export default (arr: number[], input: number): number => {
-    if(input >= arr[-1]) return 100
+    if(input >= arr[arr.length - 1]) return 100
 
     let lower_bound = 0
     let upper_bound = 25
@@ -12,5 +12,5 @@ export default (arr: number[], input: number): number => {
         }
     }
 
-    return 100 * ((input % lower_bound) / upper_bound)
+    return (input - lower_bound) / (upper_bound - lower_bound)
 }

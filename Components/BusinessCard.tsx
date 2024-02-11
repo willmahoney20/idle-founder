@@ -1,4 +1,5 @@
-import { StyleSheet, Pressable, View, Text, Image, Dimensions } from 'react-native'
+import { useState, useRef, useEffect } from 'react'
+import { Animated, StyleSheet, Pressable, View, Text, Image, Dimensions } from 'react-native'
 import Hotdog from '../assets/business-icons/hotdog_128.png'
 import Laundromat from '../assets/business-icons/laundromat_128.png'
 import LaundromatDark from '../assets/business-icons/laundromat_dark_128.png'
@@ -29,14 +30,38 @@ const width = Dimensions.get('window').width
 
 type BusinessCardProps = {
     money: number,
+    manager: boolean,
+    updateMoney: (value: number) => void,
     id: number,
     title: string,
     level: number,
     init_cost: number,
-    coefficient: number
+    init_payout: number,
+    init_timer: number,
+    coefficient: number,
+    multiplier: number,
+    time_divisor: number,
+    global_multiplier: number,
+    global_divisor: number
 }
 
-export default ({ money, id, title, level, init_cost, coefficient }: BusinessCardProps) => {
+export default ({ money, updateMoney, manager, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
+    const [levelProgress, setLevelProgress] = useState<number>(0)
+    const [nextUpgrade, setNextUpgrade] = useState<number>(0)
+    const [nextUpgradeFormulated, setNextUpgradeFormulated] = useState<string[]>([''])
+    const [nextWorker, setNextWorker] = useState<number>(0)
+    const [payout, setPayout] = useState<number>(0)
+    const [initCost, setInitCost] = useState<string>('')
+    const [duration, setDuration] = useState<number | null>(null)
+    const [hasStarted, setHasStarted] = useState(false)
+    const progress = useRef(new Animated.Value(0)).current
+
+    useEffect(() => {
+        if(level < 1){
+            setInitCost(formulateNumber(init_cost))
+        }
+    }, [])
+
     // if the user doesn't own this business, we need to display a different card
     if(level < 1) return (
         <View style={[styles.darkCard, { marginBottom: id === 9 ? 30 : 20, borderWidth: money > init_cost ? 6 : 0 }]}>
@@ -46,7 +71,7 @@ export default ({ money, id, title, level, init_cost, coefficient }: BusinessCar
                 </View>
             </View>
             <View style={styles.darkDetailsBox}>
-                <Text style={styles.darkCost}>${formulateNumber(init_cost)}</Text>
+                <Text style={styles.darkCost}>${initCost}</Text>
                 <Text style={styles.darkTitle} numberOfLines={1}>{title}</Text>
                 <Pressable>
                     <View style={[styles.darkBtn, money > init_cost ? styles.buyableBtn : null]}>
@@ -57,34 +82,85 @@ export default ({ money, id, title, level, init_cost, coefficient }: BusinessCar
         </View>
     )
 
-    let level_progress = calculatePercentage(milestones, level) // calculate the % progress of the levels (in relation to the next milestone)
-    let next_upgrade_cost = formulateNumber(init_cost * (coefficient ** level)).split(" ") // calculate the cost of the next upgrade
-    let next_worker = 0 // calculate the cost of the next worker, and get their image (if all hired, then display the manager and 'HIRED')
+    useEffect(() => {
+        let next_upgrade = init_cost * (coefficient ** level) // calculate the cost of the next upgrade
+        setLevelProgress(calculatePercentage(milestones, level)) // calculate the % progress of the levels (in relation to the next milestone)
+        setNextUpgrade(next_upgrade)
+        setNextUpgradeFormulated(formulateNumber(next_upgrade).split(" "))
+        setNextWorker(0) // calculate the cost of the next worker, and get their image (if all hired, then display the manager and 'HIRED')
+        setPayout(init_payout * level * multiplier * global_multiplier)
+        setDuration(init_timer / time_divisor / global_divisor)
+    }, [level])
 
-    console.log(title, level_progress)
+    const animation = Animated.timing(progress, {
+        toValue: 100,
+        duration: duration * 1000,
+        useNativeDriver: false
+    })
 
+    const runAnimation = (): void => {
+        if(manager){
+            animation.start(({ finished }) => {
+                if(finished){
+                    progress.setValue(0)
+                    updateMoney(payout)
+                    runAnimation()
+                }
+            })
+        } else {
+            animation.start(() => {
+                if(!manager){
+                    progress.setValue(0)
+                    setHasStarted(false)
+                }
+
+                updateMoney(payout)
+            })
+        }
+    }
+  
+    useEffect(() => {
+        if(duration && manager){
+            runAnimation()
+        }
+    }, [duration])
+
+    const handlePress = () => {
+        if(!manager && !hasStarted){
+            setHasStarted(true)
+            runAnimation()
+        }
+    }
+
+    const progressWidth = progress.interpolate({
+        inputRange: [0, 100],
+        outputRange: ['0%', '100%']
+    })
+    
     return (
         <View style={[styles.card, { marginBottom: id === 9 ? 30 : 20 }]}>
             <View style={[styles.layer, { marginBottom: 12 }]}>
                 <View style={styles.imageBox}>
-                    <Image source={icons[id].icon} style={[styles.image, icons[id].style]} />
+                    <Pressable onPress={handlePress} style={styles.imageBtn}>
+                        <Image source={icons[id].icon} style={[styles.image, icons[id].style]} />
+                    </Pressable>
                 </View>
                 <View style={styles.detailsBox}>
                     <View style={styles.titleBox}>
-                        <Text style={styles.title} numberOfLines={1}>{'GLOBAL STREAMING PLATFORM'}</Text>
+                        <Text style={styles.title} numberOfLines={1}>{title.toUpperCase()}</Text>
                         <View style={styles.levelBox}>
-                            <View style={styles.levelProgress}></View>
+                            <View style={[styles.levelProgress, { width: levelProgress * 45 }]}></View>
                             <Text style={styles.levelText}>{level}</Text>
                         </View>
                     </View>
                     <View style={styles.info}>
-                        <View style={[styles.infoBox, { backgroundColor: GREEN, justifyContent: next_upgrade_cost[1] ? 'space-between' : 'center' }]}>
+                        <View style={[styles.infoBox, { backgroundColor: nextUpgrade <= money ? GREEN : GREY, justifyContent: nextUpgradeFormulated[1] ? 'space-between' : 'center' }]}>
                             <View style={styles.levelCount}>
                                 <Text style={styles.levelCountText}>x1</Text>
                             </View>
-                            <Text style={styles.infoText}>${next_upgrade_cost[1] ? next_upgrade_cost[0] : parseInt(next_upgrade_cost[0])}</Text>
-                            {next_upgrade_cost[1] &&
-                            <Text style={[styles.infoText, styles.infoMinor]} numberOfLines={1}>{next_upgrade_cost[1]}</Text>}
+                            <Text style={styles.infoText}>${nextUpgradeFormulated[1] ? nextUpgradeFormulated[0] : parseInt(nextUpgradeFormulated[0])}</Text>
+                            {nextUpgradeFormulated[1] &&
+                            <Text style={[styles.infoText, styles.infoMinor]} numberOfLines={1}>{nextUpgradeFormulated[1]}</Text>}
                         </View>
                         <View style={[styles.infoBox, { backgroundColor: GREEN }]}>
                             <View style={styles.worker}>
@@ -99,8 +175,8 @@ export default ({ money, id, title, level, init_cost, coefficient }: BusinessCar
             </View>
             <View style={styles.layer}>
                 <View style={styles.timeBox}>
-                    <View style={styles.timeProgress}></View>
-                    <Text style={styles.timeText}>$1.2K / sec</Text>
+                    <Animated.View style={[styles.timeProgress, { width: progressWidth}]}></Animated.View>
+                    <Text style={styles.timeText}>${formulateNumber(payout)}</Text>
                 </View>
                 <View style={[styles.infoBox, { justifyContent: 'center' }]}>
                     <Text style={styles.timeText}>00:00:00</Text>
@@ -127,10 +203,12 @@ const styles = StyleSheet.create({
         width: 106,
         height: '100%',
     },
-    image: {
+    imageBtn: {
         position: 'absolute',
         bottom: 0,
         left: 0,
+    },
+    image: {
         width: 96,
         height: 96,
     },
@@ -139,7 +217,6 @@ const styles = StyleSheet.create({
         height: 96,
     },
     laundromatIcon: {
-        bottom: -1,
         left: -16,
         width: 107,
         height: 107,
@@ -163,13 +240,11 @@ const styles = StyleSheet.create({
     },
     sportsIcon: {
         left: -2,
-        bottom: -12,
         width: 98,
         height: 98,
     },
     airlineIcon: {
         left: -6,
-        bottom: -8,
         width: 104,
         height: 104,
     },
@@ -205,7 +280,8 @@ const styles = StyleSheet.create({
         width: 45,
         height: 20,
         borderRadius: 10,
-        backgroundColor: GREY
+        backgroundColor: GREY,
+        overflow: 'hidden'
     },
     levelProgress: {
         position: 'absolute',
@@ -262,6 +338,33 @@ const styles = StyleSheet.create({
         fontSize: 9,
         lineHeight: 11,
     },
+    timeBox: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: (width / 2) + 8,
+        height: 40,
+        paddingVertical: 6,
+        borderRadius: 10,
+        marginRight: 10,
+        backgroundColor: GREY
+    },
+    timeProgress: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: 40,
+        borderRadius: 10,
+        backgroundColor: GREEN
+    },
+    timeText: {
+        fontFamily: 'semi-bold',
+        fontSize: 15,
+        lineHeight: 17,
+        paddingTop: 2,
+        textAlign: 'center',
+        color: BLACK
+    },
     levelCount: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -297,35 +400,9 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
     },
-    timeBox: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: (width / 2) + 8,
-        height: 40,
-        paddingVertical: 6,
-        borderRadius: 10,
-        marginRight: 10,
-        backgroundColor: GREY
-    },
-    timeProgress: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: 40,
-        borderRadius: 10,
-        backgroundColor: GREEN
-    },
-    timeText: {
-        fontFamily: 'semi-bold',
-        fontSize: 15,
-        lineHeight: 17,
-        paddingTop: 2,
-        textAlign: 'center',
-        color: BLACK
-    },
     darkCard: {
         flexDirection: 'row',
+        alignItems: 'center',
         height: 160,
         paddingVertical: 18,
         paddingHorizontal: 25,
@@ -334,6 +411,7 @@ const styles = StyleSheet.create({
         backgroundColor: GREY
     },
     darkImageBox: {
+        justifyContent: 'center',
         minWidth: 106,
         width: 106,
         height: '100%',

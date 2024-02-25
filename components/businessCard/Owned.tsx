@@ -129,7 +129,14 @@ export default ({ buyQuantity, money, updateMoneyState, manager, workers, id, ti
         
                 return () => clearInterval(interval)
             } else {
-                runAnimation()
+                // check the animation isn't in progress (as this useEffect will rerun when manager is bought)
+                if(!endTime){
+                    console.log(43)
+                    runAnimation()
+                } else {
+                    console.log(44, endTime - Date.now())
+                    setTimeout(() => runAnimation(), endTime - Date.now())
+                }
             }
         }
     }, [duration, manager])

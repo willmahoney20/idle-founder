@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { combine, persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import businesses from './data/businesses'
+import workers from './data/workers'
 import managers from './data/managers'
 import milestones from './data/milestones'
 
@@ -12,7 +12,7 @@ interface BusinessProps {
     time_divisor: number
 }
 
-interface ManagerProps {
+interface WorkerProps {
     business_id: number,
     cost: number,
     owned: boolean
@@ -30,7 +30,8 @@ const initialState = {
         multiplier: 1,
         time_divisor: 1
     })) as BusinessProps[],
-    managers: [...managers] as ManagerProps[],
+    managers: [...managers] as WorkerProps[],
+    workers: [...workers] as WorkerProps[],
     last_update: Date.now()
 }
 
@@ -72,7 +73,15 @@ export default create(
 
                 return { money: updated_money, businesses, last_update: Date.now() }
             }),
-            // - updating managers
+            // - update managers
+            updateManager: (money: number, id: number, cost: number): void => set(state => {
+                let managers = state.managers
+
+                const updated_money = money - cost
+                managers[id]['owned'] = true
+
+                return { money: updated_money, managers, last_update: Date.now() }
+            }),
             // - updating workers
             // - updating upgrades (also update business multiplier if needed)
             // - updating mb upgrades

@@ -36,12 +36,13 @@ type BusinessCardProps = {
 }
 
 export default ({ buyQuantity, money, updateMoneyState, manager, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
-    const { updateBusinessLevel } = useStore()
+    const { updateBusinessLevel, updateManager } = useStore()
     const [levelProgress, setLevelProgress] = useState<number>(0)
     const [nextUpgradeCost, setNextUpgradeCost] = useState<number>(0)
     const [nextUpgradePossible, setNextUpgradePossible] = useState<boolean>(false)
     const [nextUpgradeFormulated, setNextUpgradeFormulated] = useState<string[]>([''])
     const [levelCount, setLevelCount] = useState<number>(1)
+    const [nextWorkerType, setNextWorkerType] = useState<string>('manager')
     const [nextWorkerCost, setNextWorkerCost] = useState<number>(0)
     const [nextWorkerFormulated, setNextWorkerFormulated] = useState<string>('HIRED')
     const [nextWorkerPossible, setNextWorkerPossible] = useState<boolean>(false)
@@ -69,6 +70,7 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
         const workers_arr = [managers[id], workers[id * 2], workers[id * 2 + 1]]
         for(let i = 0; i < workers_arr.length; i++){
             if(!workers_arr[i].owned){
+                setNextWorkerType(i < 1 ? 'manager' : 'worker')
                 setNextWorkerCost(workers_arr[i].cost)
                 setNextWorkerFormulated(formulateNumber(workers_arr[i].cost))
                 setNextWorkerPossible(money >= workers_arr[i].cost)
@@ -121,7 +123,7 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
                 runAnimation()
             }
         }
-    }, [duration])
+    }, [duration, manager])
 
     // set the time remaining
     useEffect(() => {
@@ -146,10 +148,17 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
         outputRange: ['0%', '100%']
     })
 
-    const handleUpgrade = () => {
+    const handleLevelUpgrade = () => {
         // check user has sufficient funds for upgrade
         if(nextUpgradePossible){
             updateBusinessLevel(money, id, levelCount, nextUpgradeCost)
+        }
+    }
+
+    const handleWorker = () => {
+        // check user has sufficient funds for buying this worker
+        if(nextWorkerPossible){
+            nextWorkerType === 'manager' ? updateManager(money, id, nextWorkerCost) : null
         }
     }
     
@@ -170,7 +179,7 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
                         </View>
                     </View>
                     <View style={styles.info}>
-                        <Pressable onPress={handleUpgrade}>
+                        <Pressable onPress={handleLevelUpgrade}>
                             <View style={[styles.infoBox, { backgroundColor: nextUpgradePossible ? GREEN : GREY, justifyContent: nextUpgradeFormulated[1] ? 'space-between' : 'center' }]}>
                                 <View style={styles.levelCount}>
                                     <Text style={styles.levelCountText}>x{levelCount}</Text>
@@ -180,14 +189,16 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
                                 <Text style={[styles.infoText, styles.infoMinor]} numberOfLines={1}>{nextUpgradeFormulated[1]}</Text>}
                             </View>
                         </Pressable>
-                        <View style={[styles.infoBox, { backgroundColor: nextWorkerPossible ? GREEN : GREY }]}>
-                            <View style={styles.worker}>
-                                <View style={styles.workerCon}>
-                                    <Image source={HotdogManager} style={styles.hotdogManager} />
+                        <Pressable onPress={handleWorker}>
+                            <View style={[styles.infoBox, { backgroundColor: nextWorkerPossible ? GREEN : GREY }]}>
+                                <View style={styles.worker}>
+                                    <View style={styles.workerCon}>
+                                        <Image source={HotdogManager} style={styles.hotdogManager} />
+                                    </View>
                                 </View>
+                                <Text style={[styles.infoText, styles.infoMinor]}>{nextWorkerFormulated === 'HIRED' ? '' : '$'}{nextWorkerFormulated}</Text>
                             </View>
-                            <Text style={[styles.infoText, styles.infoMinor]}>{nextWorkerFormulated === 'HIRED' ? '' : '$'}{nextWorkerFormulated}</Text>
-                        </View>
+                        </Pressable>
                     </View>
                 </View>
             </View>

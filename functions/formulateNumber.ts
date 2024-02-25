@@ -105,7 +105,8 @@ const scale = [
     { name: "Infinity", divisor: 1e309 } // at 10 uncentillion, we return infinity and consider the game to be completed! We should give the user an achievement, and allow them to start from scratch
 ]
 export default (number: number): string => {
-    if (number < 1000000) return parseFloat(number.toFixed(2)).toString()
+    if(number < 1000) return number.toFixed(2)
+    if(number < 1000000) return Math.ceil(number).toString()
 
     let suffix = ""
     let formattedNumber = number

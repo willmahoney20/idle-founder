@@ -5,7 +5,7 @@ export default [
         init_payout: 1,
         init_cost: 5/1.1, // we start on level 1, and to upgrade to level 2 costs $4 so level 1 would cost 4/coefficient
         coefficient: 1.1, // the cost of each level will multiply by this value
-        init_timer: 0.5,
+        init_timer: 0.75,
     },
     {
         id: 1,

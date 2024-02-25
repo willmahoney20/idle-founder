@@ -2,7 +2,7 @@ export default [
     {
         business_id: 0,
         cost: 1e+3, // 1 thousand
-        owned: false
+        owned: true
     },
     {
         business_id: 1,

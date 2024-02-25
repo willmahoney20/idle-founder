@@ -22,16 +22,21 @@ import SpaceDark from '../assets/business-icons/space_dark_128.png'
 import HotdogManager from '../assets/workers/hotdog_stand_manager.png'
 import colors from '../assets/ColorPalette'
 import formulateNumber from '../functions/formulateNumber'
-import milestones from '../Data/milestones'
+import milestones from '../data/milestones'
 import calculatePercentage from '../functions/calculatePercentage'
+import nextMilestone from '../functions/nextMilestone'
+import maxUpgrade from '../functions/maxUpgrade'
 
 const { TURQUOISE, GREEN, WHITE, RED, DARK_RED, BLACK, GREY } = colors
 const width = Dimensions.get('window').width
 
 type BusinessCardProps = {
+    // updateMoney: (value: number) => void,
+    // updateBusiness: (id: number, type: string, value: number) => void,
+    buyQuantity: string,
     money: number,
     manager: boolean,
-    updateMoney: (value: number) => void,
+    updateMoneyState: (value: number) => void,
     id: number,
     title: string,
     level: number,
@@ -45,10 +50,12 @@ type BusinessCardProps = {
     global_divisor: number
 }
 
-export default ({ money, updateMoney, manager, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
+export default ({ buyQuantity, money, updateMoneyState, manager, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
     const [levelProgress, setLevelProgress] = useState<number>(0)
-    const [nextUpgrade, setNextUpgrade] = useState<number>(0)
+    const [nextUpgradeCost, setNextUpgradeCost] = useState<number>(0)
+    const [nextUpgradePossible, setNextUpgradePossible] = useState<boolean>(false)
     const [nextUpgradeFormulated, setNextUpgradeFormulated] = useState<string[]>([''])
+    const [levelCount, setLevelCount] = useState<number>(1)
     const [nextWorker, setNextWorker] = useState<number>(0)
     const [payout, setPayout] = useState<number>(0)
     const [initCost, setInitCost] = useState<string>('')
@@ -82,11 +89,22 @@ export default ({ money, updateMoney, manager, id, title, level, init_cost, init
         </View>
     )
 
+    // get the next upgrade data for this business
     useEffect(() => {
-        let next_upgrade = init_cost * (coefficient ** level) // calculate the cost of the next upgrade
-        setLevelProgress(calculatePercentage(milestones, level)) // calculate the % progress of the levels (in relation to the next milestone)
-        setNextUpgrade(next_upgrade)
+        let next_level = init_cost * (coefficient ** level)
+        let upgrade_to = buyQuantity === 'NEXT' ? nextMilestone(milestones, level) : buyQuantity === 'MAX' ? level + maxUpgrade(money, next_level, coefficient) : level + parseInt(buyQuantity)  // the level we are upgrading to
+        let next_upgrade = next_level * (1 - (coefficient ** (upgrade_to - level))) / (1 - coefficient)
+        setNextUpgradeCost(next_upgrade)
+        setNextUpgradePossible(false)
         setNextUpgradeFormulated(formulateNumber(next_upgrade).split(" "))
+        setLevelCount(upgrade_to - 1)
+    }, [buyQuantity, level, money])
+
+    if(nextUpgradePossible && money < nextUpgradeCost) setNextUpgradePossible(false)
+    if(!nextUpgradePossible && money >= nextUpgradeCost) setNextUpgradePossible(true)
+
+    useEffect(() => {
+        setLevelProgress(calculatePercentage(milestones, level)) // calculate the % progress of the levels (in relation to the next milestone)
         setNextWorker(0) // calculate the cost of the next worker, and get their image (if all hired, then display the manager and 'HIRED')
         setPayout(init_payout * level * multiplier * global_multiplier)
         setDuration(init_timer / time_divisor / global_divisor)
@@ -103,7 +121,7 @@ export default ({ money, updateMoney, manager, id, title, level, init_cost, init
             animation.start(({ finished }) => {
                 if(finished){
                     progress.setValue(0)
-                    updateMoney(payout)
+                    updateMoneyState(payout)
                     runAnimation()
                 }
             })
@@ -114,7 +132,7 @@ export default ({ money, updateMoney, manager, id, title, level, init_cost, init
                     setHasStarted(false)
                 }
 
-                updateMoney(payout)
+                updateMoneyState(payout)
             })
         }
     }
@@ -136,6 +154,12 @@ export default ({ money, updateMoney, manager, id, title, level, init_cost, init
         inputRange: [0, 100],
         outputRange: ['0%', '100%']
     })
+
+    const handleUpgrade = () => {
+        // we need to upgrade the business in zustand
+        // we then need to update the money
+        // we might be better making an updateLevel, updateMultiplier, updateDivisor, etc. functions in zustand to prevent running 2 functions
+    }
     
     return (
         <View style={[styles.card, { marginBottom: id === 9 ? 30 : 20 }]}>
@@ -154,14 +178,16 @@ export default ({ money, updateMoney, manager, id, title, level, init_cost, init
                         </View>
                     </View>
                     <View style={styles.info}>
-                        <View style={[styles.infoBox, { backgroundColor: nextUpgrade <= money ? GREEN : GREY, justifyContent: nextUpgradeFormulated[1] ? 'space-between' : 'center' }]}>
-                            <View style={styles.levelCount}>
-                                <Text style={styles.levelCountText}>x1</Text>
+                        <Pressable onPress={handleUpgrade}>
+                            <View style={[styles.infoBox, { backgroundColor: nextUpgradePossible ? GREEN : GREY, justifyContent: nextUpgradeFormulated[1] ? 'space-between' : 'center' }]}>
+                                <View style={styles.levelCount}>
+                                    <Text style={styles.levelCountText}>x{levelCount}</Text>
+                                </View>
+                                <Text style={styles.infoText}>${nextUpgradeFormulated[1] ? nextUpgradeFormulated[0] : nextUpgradeFormulated[0]}</Text>
+                                {nextUpgradeFormulated[1] &&
+                                <Text style={[styles.infoText, styles.infoMinor]} numberOfLines={1}>{nextUpgradeFormulated[1]}</Text>}
                             </View>
-                            <Text style={styles.infoText}>${nextUpgradeFormulated[1] ? nextUpgradeFormulated[0] : parseInt(nextUpgradeFormulated[0])}</Text>
-                            {nextUpgradeFormulated[1] &&
-                            <Text style={[styles.infoText, styles.infoMinor]} numberOfLines={1}>{nextUpgradeFormulated[1]}</Text>}
-                        </View>
+                        </Pressable>
                         <View style={[styles.infoBox, { backgroundColor: GREEN }]}>
                             <View style={styles.worker}>
                                 <View style={styles.workerCon}>

@@ -19,7 +19,7 @@ interface WorkerProps {
 }
 
 const initialState = {
-    money: 250000,
+    money: 1250000,
     gems: 0,
     mega_bucks: 0,
     global_multiplier: 1,
@@ -82,7 +82,17 @@ export default create(
 
                 return { money: updated_money, managers, last_update: Date.now() }
             }),
-            // - updating workers
+            // - update workers
+            updateWorker: (money: number, id: number, worker_id: number, cost: number): void => set(state => {
+                let workers = state.workers
+                let businesses = state.businesses
+
+                const updated_money = money - cost
+                workers[worker_id]['owned'] = true
+                businesses[id]['multiplier'] *= 2
+
+                return { money: updated_money, workers, businesses, last_update: Date.now() }
+            }),
             // - updating upgrades (also update business multiplier if needed)
             // - updating mb upgrades
 

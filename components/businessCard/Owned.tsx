@@ -10,8 +10,6 @@ import styles from '../../styles/businessCardStyles'
 import icons from './BusinessCardIcons'
 import useStore from '../../store'
 import calculateLevelUpgrades from '../../functions/calculateLevelUpgrades'
-import managers from '../../data/managers'
-import workers from '../../data/workers'
 import { UPS } from '../../globals'
 
 const { GREEN, GREY } = colors
@@ -21,6 +19,7 @@ type BusinessCardProps = {
     buyQuantity: string,
     money: number,
     manager: boolean,
+    workers: { business_id: number, cost: number, owned: boolean }[],
     updateMoneyState: (value: number) => void,
     id: number,
     title: string,
@@ -35,8 +34,8 @@ type BusinessCardProps = {
     global_divisor: number
 }
 
-export default ({ buyQuantity, money, updateMoneyState, manager, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
-    const { updateBusinessLevel, updateManager } = useStore()
+export default ({ buyQuantity, money, updateMoneyState, manager, workers, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
+    const { updateBusinessLevel, updateManager, updateWorker } = useStore()
     const [levelProgress, setLevelProgress] = useState<number>(0)
     const [nextUpgradeCost, setNextUpgradeCost] = useState<number>(0)
     const [nextUpgradePossible, setNextUpgradePossible] = useState<boolean>(false)
@@ -65,28 +64,38 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
     if(nextUpgradePossible && money < nextUpgradeCost) setNextUpgradePossible(false)
     if(!nextUpgradePossible && money >= nextUpgradeCost) setNextUpgradePossible(true)
 
-    // get the next worker upgrade details
-    useEffect(() => {
-        const workers_arr = [managers[id], workers[id * 2], workers[id * 2 + 1]]
-        for(let i = 0; i < workers_arr.length; i++){
-            if(!workers_arr[i].owned){
-                setNextWorkerType(i < 1 ? 'manager' : 'worker')
-                setNextWorkerCost(workers_arr[i].cost)
-                setNextWorkerFormulated(formulateNumber(workers_arr[i].cost))
-                setNextWorkerPossible(money >= workers_arr[i].cost)
+    // function for getting the next worker upgrade details
+    const handleWorkerDetails = () => {
+        for(let i = 0; i < workers.length; i++){
+            if(!workers[i].owned){
+                setNextWorkerType(i < 1 ? 'manager' : `worker ${i - 1}`)
+                setNextWorkerCost(workers[i].cost)
+                setNextWorkerFormulated(formulateNumber(workers[i].cost))
+                setNextWorkerPossible(money >= workers[i].cost)
                 break
             }
-        }
-    }, [])
 
-    if(nextWorkerPossible && money < nextWorkerCost) setNextWorkerPossible(false)
-    if(!nextWorkerPossible && money >= nextWorkerCost) setNextWorkerPossible(true)
+            if(i === 2){
+                setNextWorkerFormulated('HIRED')
+                setNextWorkerPossible(true)
+            }
+        }
+    }
+
+    useEffect(() => {
+        handleWorkerDetails()
+    }, [manager])
+
+    if(nextWorkerFormulated !== 'HIRED'){
+        if(nextWorkerPossible && money < nextWorkerCost) setNextWorkerPossible(false)
+        if(!nextWorkerPossible && money >= nextWorkerCost) setNextWorkerPossible(true)
+    }
 
     useEffect(() => {
         setLevelProgress(calculatePercentage(milestones, level)) // calculate the % progress of the levels (in relation to the next milestone)
         setPayout(init_payout * level * multiplier * global_multiplier)
         setDuration(init_timer / time_divisor / global_divisor)
-    }, [level])
+    }, [level, multiplier, time_divisor, global_divisor])
 
     const runAnimation = (): void => {
         setEndTime(Date.now() + (duration * 1000))
@@ -157,8 +166,14 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
 
     const handleWorker = () => {
         // check user has sufficient funds for buying this worker
-        if(nextWorkerPossible){
-            nextWorkerType === 'manager' ? updateManager(money, id, nextWorkerCost) : null
+        if(nextWorkerPossible && nextWorkerFormulated !== 'HIRED'){
+            if(nextWorkerType === 'manager'){
+                updateManager(money, id, nextWorkerCost)
+            } else if(nextWorkerType.includes('worker')){
+                const worker_id = id * 2 + parseInt(nextWorkerType.split(' ')[1])
+                updateWorker(money, id, worker_id, nextWorkerCost)
+                handleWorkerDetails()
+            }
         }
     }
     

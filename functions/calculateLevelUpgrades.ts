@@ -15,7 +15,7 @@ const maxUpgrade = (money: number, init_cost: number, coefficient: number): numb
     let sum = 0 // geometric sum of the formula
     
     while(true){
-        sum = init_cost * ((1 - Math.pow(coefficient, n)) / (1 - coefficient))
+        sum = init_cost * (1 - (coefficient ** n)) / (1 - coefficient)
         if(sum > money) break
         n++
     }

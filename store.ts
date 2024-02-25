@@ -19,7 +19,7 @@ interface WorkerProps {
 }
 
 const initialState = {
-    money: 1250000,
+    money: 150000,
     gems: 0,
     mega_bucks: 0,
     global_multiplier: 1,

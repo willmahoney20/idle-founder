@@ -15,7 +15,7 @@ import { UPS } from '../../globals'
 const { GREEN, GREY } = colors
 
 type BusinessCardProps = {
-    // updateMoney: (value: number) => void,
+    reload: boolean,
     buyQuantity: string,
     money: number,
     manager: boolean,
@@ -34,12 +34,13 @@ type BusinessCardProps = {
     global_divisor: number
 }
 
-export default ({ buyQuantity, money, updateMoneyState, manager, workers, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
+export default ({ reload, buyQuantity, money, updateMoneyState, manager, workers, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
     const { updateBusinessLevel, updateManager, updateWorker } = useStore()
     const [levelProgress, setLevelProgress] = useState<number>(0)
     const [nextUpgradeCost, setNextUpgradeCost] = useState<number>(0)
     const [nextUpgradePossible, setNextUpgradePossible] = useState<boolean>(false)
     const [nextUpgradeFormulated, setNextUpgradeFormulated] = useState<string[]>([''])
+    const [nextMaxCost, setNextMaxCost] = useState<number>(0)
     const [levelCount, setLevelCount] = useState<number>(1)
     const [nextWorkerType, setNextWorkerType] = useState<string>('manager')
     const [nextWorkerCost, setNextWorkerCost] = useState<number>(0)
@@ -51,15 +52,25 @@ export default ({ buyQuantity, money, updateMoneyState, manager, workers, id, ti
     const [timeLeft, setTimeLeft] = useState(null)
     const progress = useRef(new Animated.Value(0)).current
 
-    // get the next upgrade data for this business
-    useEffect(() => {
+    const updateLevelDetails = () => {
         const { next_upgrade, upgrade_to } = calculateLevelUpgrades(money, buyQuantity, init_cost, level, coefficient)
-        
+
         setNextUpgradeCost(next_upgrade)
         setNextUpgradePossible(money >= next_upgrade)
         setNextUpgradeFormulated(formulateNumber(next_upgrade).split(" "))
         setLevelCount(upgrade_to - level)
-    }, [buyQuantity, level])
+        if(buyQuantity === 'MAX'){
+            setNextMaxCost(next_upgrade + (init_cost * (coefficient ** upgrade_to)))
+        }
+    }
+
+    // get the next upgrade data for this business
+    useEffect(() => {
+        updateLevelDetails()
+    }, [buyQuantity, reload])
+
+    // check if the user's funds have surpassed the cost of another level upgrade
+    if(buyQuantity === 'MAX' && money >= nextMaxCost) updateLevelDetails()
 
     if(nextUpgradePossible && money < nextUpgradeCost) setNextUpgradePossible(false)
     if(!nextUpgradePossible && money >= nextUpgradeCost) setNextUpgradePossible(true)
@@ -129,12 +140,10 @@ export default ({ buyQuantity, money, updateMoneyState, manager, workers, id, ti
         
                 return () => clearInterval(interval)
             } else {
-                // check the animation isn't in progress (as this useEffect will rerun when manager is bought)
+                // check if the animation is in progress, if it is, add a delay to the runAnimation()
                 if(!endTime){
-                    console.log(43)
                     runAnimation()
                 } else {
-                    console.log(44, endTime - Date.now())
                     setTimeout(() => runAnimation(), endTime - Date.now())
                 }
             }

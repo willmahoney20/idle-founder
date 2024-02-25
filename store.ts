@@ -3,6 +3,7 @@ import { combine, persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import businesses from './data/businesses'
 import managers from './data/managers'
+import milestones from './data/milestones'
 
 interface BusinessProps {
     id: number,
@@ -29,7 +30,8 @@ const initialState = {
         multiplier: 1,
         time_divisor: 1
     })) as BusinessProps[],
-    managers: [...managers] as ManagerProps[]
+    managers: [...managers] as ManagerProps[],
+    last_update: Date.now()
 }
 
 export default create(
@@ -47,14 +49,28 @@ export default create(
 
             // create functions for the following...
             // - updating business levels & updating businesses (buying them)
-            updateBusiness: (id: number, type: string, value: number): void => set(state => {
-                const businesses = state.businesses
-                console.log('here', businesses)
+            updateBusinessLevel: (money: number, id: number, levels: number, cost: number): void => set(state => {
+                let businesses = state.businesses
 
-                // update level
+                const updated_money = money - cost
+                const current_level = businesses[id]['level']
+                const new_level = current_level + levels
+                businesses[id]['level'] = new_level
+
                 // check for milestones (for this business and all businesses)
+                for(let i = 0; i < milestones.length; i++){
+                    // check if milestone has been surpassed
+                    if(current_level < milestones[i] && new_level >= milestones[i]){
+                        businesses[id]['time_divisor'] *= 2
 
-                return { businesses }
+                        // check if all businesses have now passed this milestone
+                        if(businesses.every(x => x.level >= milestones[i])){
+                            businesses.forEach(x => x['time_divisor'] *= 2)
+                        }
+                    }
+                }
+
+                return { money: updated_money, businesses, last_update: Date.now() }
             }),
             // - updating managers
             // - updating workers

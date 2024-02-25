@@ -6,17 +6,16 @@ import formulateNumber from '../../functions/formulateNumber'
 import formatTimer from '../../functions/formatTimer'
 import milestones from '../../data/milestones'
 import calculatePercentage from '../../functions/calculatePercentage'
-import nextMilestone from '../../functions/nextMilestone'
-import maxUpgrade from '../../functions/maxUpgrade'
 import styles from '../../styles/businessCardStyles'
 import icons from './BusinessCardIcons'
+import useStore from '../../store'
+import calculateLevelUpgrades from '../../functions/calculateLevelUpgrades'
 import { UPS } from '../../globals'
 
 const { GREEN, GREY } = colors
 
 type BusinessCardProps = {
     // updateMoney: (value: number) => void,
-    // updateBusiness: (id: number, type: string, value: number) => void,
     buyQuantity: string,
     money: number,
     manager: boolean,
@@ -35,6 +34,7 @@ type BusinessCardProps = {
 }
 
 export default ({ buyQuantity, money, updateMoneyState, manager, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
+    const { updateBusinessLevel } = useStore()
     const [levelProgress, setLevelProgress] = useState<number>(0)
     const [nextUpgradeCost, setNextUpgradeCost] = useState<number>(0)
     const [nextUpgradePossible, setNextUpgradePossible] = useState<boolean>(false)
@@ -49,14 +49,13 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
 
     // get the next upgrade data for this business
     useEffect(() => {
-        let next_level = init_cost * (coefficient ** level)
-        let upgrade_to = buyQuantity === 'NEXT' ? nextMilestone(milestones, level) : buyQuantity === 'MAX' ? level + maxUpgrade(money, next_level, coefficient) : level + parseInt(buyQuantity)  // the level we are upgrading to
-        let next_upgrade = next_level * (1 - (coefficient ** (upgrade_to - level))) / (1 - coefficient)
+        const { next_upgrade, upgrade_to } = calculateLevelUpgrades(money, buyQuantity, init_cost, level, coefficient)
+        
         setNextUpgradeCost(next_upgrade)
-        setNextUpgradePossible(false)
+        setNextUpgradePossible(money >= next_upgrade)
         setNextUpgradeFormulated(formulateNumber(next_upgrade).split(" "))
-        setLevelCount(upgrade_to - 1)
-    }, [buyQuantity, level, money])
+        setLevelCount(upgrade_to - level)
+    }, [buyQuantity, level])
 
     if(nextUpgradePossible && money < nextUpgradeCost) setNextUpgradePossible(false)
     if(!nextUpgradePossible && money >= nextUpgradeCost) setNextUpgradePossible(true)
@@ -132,6 +131,7 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
         // check user has sufficient funds for upgrade
         if(nextUpgradePossible){
             // we need to upgrade the business in zustand
+            updateBusinessLevel(money, id, levelCount, nextUpgradeCost)
             
             // we then need to update the money
             // we might be better making an updateLevel, updateMultiplier, updateDivisor, etc. functions in zustand to prevent running 2 functions

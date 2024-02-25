@@ -29,7 +29,6 @@ export default () => {
                     return businesses[index].level > 0 ? <Owned
                         key={business.id}
                         // updateMoney={updateMoney}
-                        // updateBusiness={updateBusiness}
                         buyQuantity={buyQuantity}
                         money={currentMoney}
                         manager={managers[index].owned}

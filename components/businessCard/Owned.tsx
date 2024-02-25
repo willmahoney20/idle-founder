@@ -10,6 +10,8 @@ import styles from '../../styles/businessCardStyles'
 import icons from './BusinessCardIcons'
 import useStore from '../../store'
 import calculateLevelUpgrades from '../../functions/calculateLevelUpgrades'
+import managers from '../../data/managers'
+import workers from '../../data/workers'
 import { UPS } from '../../globals'
 
 const { GREEN, GREY } = colors
@@ -40,7 +42,9 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
     const [nextUpgradePossible, setNextUpgradePossible] = useState<boolean>(false)
     const [nextUpgradeFormulated, setNextUpgradeFormulated] = useState<string[]>([''])
     const [levelCount, setLevelCount] = useState<number>(1)
-    const [nextWorker, setNextWorker] = useState<number>(0)
+    const [nextWorkerCost, setNextWorkerCost] = useState<number>(0)
+    const [nextWorkerFormulated, setNextWorkerFormulated] = useState<string>('HIRED')
+    const [nextWorkerPossible, setNextWorkerPossible] = useState<boolean>(false)
     const [payout, setPayout] = useState<number>(0)
     const [duration, setDuration] = useState<number | null>(null)
     const [endTime, setEndTime] = useState<number | null>(null)
@@ -60,9 +64,24 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
     if(nextUpgradePossible && money < nextUpgradeCost) setNextUpgradePossible(false)
     if(!nextUpgradePossible && money >= nextUpgradeCost) setNextUpgradePossible(true)
 
+    // get the next worker upgrade details
+    useEffect(() => {
+        const workers_arr = [managers[id], workers[id * 2], workers[id * 2 + 1]]
+        for(let i = 0; i < workers_arr.length; i++){
+            if(!workers_arr[i].owned){
+                setNextWorkerCost(workers_arr[i].cost)
+                setNextWorkerFormulated(formulateNumber(workers_arr[i].cost))
+                setNextWorkerPossible(money >= workers_arr[i].cost)
+                break
+            }
+        }
+    }, [])
+
+    if(nextWorkerPossible && money < nextWorkerCost) setNextWorkerPossible(false)
+    if(!nextWorkerPossible && money >= nextWorkerCost) setNextWorkerPossible(true)
+
     useEffect(() => {
         setLevelProgress(calculatePercentage(milestones, level)) // calculate the % progress of the levels (in relation to the next milestone)
-        setNextWorker(0) // calculate the cost of the next worker, and get their image (if all hired, then display the manager and 'HIRED')
         setPayout(init_payout * level * multiplier * global_multiplier)
         setDuration(init_timer / time_divisor / global_divisor)
     }, [level])
@@ -130,11 +149,7 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
     const handleUpgrade = () => {
         // check user has sufficient funds for upgrade
         if(nextUpgradePossible){
-            // we need to upgrade the business in zustand
             updateBusinessLevel(money, id, levelCount, nextUpgradeCost)
-            
-            // we then need to update the money
-            // we might be better making an updateLevel, updateMultiplier, updateDivisor, etc. functions in zustand to prevent running 2 functions
         }
     }
     
@@ -165,13 +180,13 @@ export default ({ buyQuantity, money, updateMoneyState, manager, id, title, leve
                                 <Text style={[styles.infoText, styles.infoMinor]} numberOfLines={1}>{nextUpgradeFormulated[1]}</Text>}
                             </View>
                         </Pressable>
-                        <View style={[styles.infoBox, { backgroundColor: GREEN }]}>
+                        <View style={[styles.infoBox, { backgroundColor: nextWorkerPossible ? GREEN : GREY }]}>
                             <View style={styles.worker}>
                                 <View style={styles.workerCon}>
                                     <Image source={HotdogManager} style={styles.hotdogManager} />
                                 </View>
                             </View>
-                            <Text style={[styles.infoText, styles.infoMinor]}>HIRED</Text>
+                            <Text style={[styles.infoText, styles.infoMinor]}>{nextWorkerFormulated === 'HIRED' ? '' : '$'}{nextWorkerFormulated}</Text>
                         </View>
                     </View>
                 </View>

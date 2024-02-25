@@ -106,7 +106,7 @@ const scale = [
 ]
 export default (number: number): string => {
     if(number < 1000) return number.toFixed(2)
-    if(number < 1000000) return Math.ceil(number).toString()
+    if(number < 1000000) return Math.ceil(Number(number.toFixed(2))).toString()
 
     let suffix = ""
     let formattedNumber = number

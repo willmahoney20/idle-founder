@@ -4,6 +4,7 @@ import styles from '../../styles/businessCardStyles'
 import icons from './BusinessCardIcons'
 import colors from '../../assets/ColorPalette'
 import formulateNumber from '../../functions/formulateNumber'
+import useStore from '../../store'
 
 const { WHITE, BLACK } = colors
 
@@ -15,11 +16,14 @@ type NotOwnedProps = {
 }
 
 export default ({ id, money, init_cost, title }: NotOwnedProps) => {
+    const { updateBusinessLevel } = useStore()
     const [initCost, setInitCost] = useState<string>('')
 
     useEffect(() => {
         setInitCost(formulateNumber(init_cost))
     }, [init_cost])
+
+    const handleBusinessPurchase = () => updateBusinessLevel(money, id, 1, init_cost)
 
     return (
         <View style={[styles.darkCard, { marginBottom: id === 9 ? 30 : 20, borderWidth: money > init_cost ? 6 : 0 }]}>
@@ -31,7 +35,7 @@ export default ({ id, money, init_cost, title }: NotOwnedProps) => {
             <View style={styles.darkDetailsBox}>
                 <Text style={styles.darkCost}>${initCost}</Text>
                 <Text style={styles.darkTitle} numberOfLines={1}>{title}</Text>
-                <Pressable>
+                <Pressable onPress={handleBusinessPurchase}>
                     <View style={[styles.darkBtn, money > init_cost ? styles.buyableBtn : null]}>
                         <Text style={[styles.darkBtnText, { color: money > init_cost ? WHITE : BLACK }]}>BUY BUSINESS</Text>
                     </View>

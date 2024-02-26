@@ -6,6 +6,7 @@ import NotOwned from '../components/businessCard/NotOwned'
 import Businesses from '../data/businesses'
 import Tabs from './Tabs'
 import useStore from '../store'
+import Workers from './Workers'
 
 const buy_quantities = ['1', '10', '100', 'NEXT', 'MAX'] // the possible values for the tags icon in the header
 
@@ -26,6 +27,8 @@ export default () => {
 
     return (
         <View style={styles.container}>
+            <Workers visible={true} handleClose={() => console.log('close da thang')} />
+
             <Header money={currentMoney} gems={gems} mega_bucks={mega_bucks} buyQuantity={buyQuantity} handleBuyQuantity={handleBuyQuantity} />
 
             <ScrollView style={styles.cardContainer} showsVerticalScrollIndicator={false}>

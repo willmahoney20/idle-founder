@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar'
 import { StyleSheet, SafeAreaView, View } from 'react-native'
 import { useFonts, Poppins_300Light, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins'
-import Screen from './main/Screen'
+import ScreenContainer from './main/ScreenContainer'
 import colors from './assets/ColorPalette'
 
 const { LIGHT_GREEN_BG } = colors
@@ -21,7 +21,7 @@ export default () => {
 		<View style={styles.container}>
 			<SafeAreaView style={{ flex: 1 }}>
 				<StatusBar hidden />
-				<Screen />
+				<ScreenContainer />
 			</SafeAreaView>
 		</View>
 	)

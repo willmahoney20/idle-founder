@@ -17,6 +17,7 @@ export default ({ visible, handleClose }) => {
     const [data, setData] = useState([])
 
     useEffect(() => {
+        console.log('here')
         let arr = [...managers_data, ...workers_data].sort((a, b) => a.cost - b.cost)
         setData(arr)
     }, [workers, managers])
@@ -30,6 +31,8 @@ export default ({ visible, handleClose }) => {
             dim.height = 100
         }
     )
+
+    console.log('not ideal')
 
     return (
         <Modal visible={visible} transparent={true} animationType='slide' onRequestClose={handleClose}>

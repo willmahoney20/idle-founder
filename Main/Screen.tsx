@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
+import { ScrollView } from 'react-native'
 import Header from './Header'
 import Owned from '../components/businessCard/Owned'
 import NotOwned from '../components/businessCard/NotOwned'
 import Businesses from '../data/businesses'
-import Tabs from './Tabs'
 import useStore from '../store'
-import WorkersModal from './Workers'
 
 const buy_quantities = ['1', '10', '100', 'NEXT', 'MAX'] // the possible values for the tags icon in the header
 
@@ -15,7 +13,6 @@ export default () => {
     const [buyQuantity, setBuyQuantity] = useState<string>('1')
     const [currentMoney, setCurrentMoney] = useState<number>(0)
     const [appRefresh, setAppRefresh] = useState<boolean>(false)
-    const [workersModalVisible, setWorkersModalVisible] = useState<boolean>(true)
 
     useEffect(() => {
         if(money){
@@ -27,13 +24,13 @@ export default () => {
     const handleBuyQuantity = () => setBuyQuantity(prev => prev === 'MAX' ? '1' : buy_quantities[buy_quantities.indexOf(prev) + 1])
 
     return (
-        <View style={styles.container}>
-            {workersModalVisible &&
-            <WorkersModal visible={workersModalVisible} handleClose={() => setWorkersModalVisible(false)} />}
-
+        <>
             <Header money={currentMoney} gems={gems} mega_bucks={mega_bucks} buyQuantity={buyQuantity} handleBuyQuantity={handleBuyQuantity} />
 
-            <ScrollView style={styles.cardContainer} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                style={{ flex: 1, padding: 15, zIndex: 1 }}
+                showsVerticalScrollIndicator={false}
+            >
                 {Businesses.map((business, index) => {
                     let id = business.id
                     return businesses[index].level > 0 ? <Owned
@@ -64,20 +61,6 @@ export default () => {
                     />
                 })}
             </ScrollView>
-
-            <Tabs />
-        </View>
+        </>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'space-between'
-    },
-    cardContainer: {
-        flex: 1,
-        padding: 15,
-        zIndex: 1
-    }
-})

@@ -11,6 +11,8 @@ import icons from './BusinessCardIcons'
 import useStore from '../../store'
 import calculateLevelUpgrades from '../../functions/calculateLevelUpgrades'
 import { UPS } from '../../globals'
+import workers_data from '../../data/workers'
+import managers_data from '../../data/managers'
 
 const { GREEN, GREY } = colors
 
@@ -19,7 +21,7 @@ type BusinessCardProps = {
     buyQuantity: string,
     money: number,
     manager: boolean,
-    workers: { business_id: number, cost: number, owned: boolean }[],
+    workers: { manager_id?: number, worker_id?: number, owned: boolean }[],
     updateMoneyState: (value: number) => void,
     id: number,
     title: string,
@@ -80,9 +82,9 @@ export default ({ reload, buyQuantity, money, updateMoneyState, manager, workers
         for(let i = 0; i < workers.length; i++){
             if(!workers[i].owned){
                 setNextWorkerType(i < 1 ? 'manager' : `worker ${i - 1}`)
-                setNextWorkerCost(workers[i].cost)
-                setNextWorkerFormulated(formulateNumber(workers[i].cost))
-                setNextWorkerPossible(money >= workers[i].cost)
+                setNextWorkerCost(workers_data[i].cost)
+                setNextWorkerFormulated(formulateNumber(workers_data[i].cost))
+                setNextWorkerPossible(money >= workers_data[i].cost)
                 break
             }
 

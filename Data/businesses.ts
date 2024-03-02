@@ -65,7 +65,7 @@ export default [
     },
     {
         id: 8,
-        name: 'Global Streaming Platform',
+        name: 'Streaming Platform',
         init_payout: 1000000000,
         init_cost: 2500000000,
         coefficient: 1.15, // the cost of each level will multiply by this value
@@ -73,7 +73,7 @@ export default [
     },
     {
         id: 9,
-        name: 'Space Tourism Company',
+        name: 'Space Tourism',
         init_payout: 25000000000,
         init_cost: 30000000000,
         coefficient: 1.1, // the cost of each level will multiply by this value

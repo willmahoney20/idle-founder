@@ -1,12 +1,35 @@
+import { useState, useEffect } from 'react'
 import { StyleSheet, Pressable, Image, Modal, Animated, View, Dimensions, Text } from 'react-native'
 import colors from '../assets/ColorPalette'
 import CloseIcon from '../assets/tab-icons/close.png'
 import UpgradeCard from '../components/UpgradeCard'
+import useStore from '../store'
+import managers_data from '../data/managers'
+import workers_data from '../data/workers'
+import formulateNumber from '../functions/formulateNumber'
+import { RecyclerListView, LayoutProvider, DataProvider } from 'recyclerlistview'
 
 const { LIGHT_GREEN_BG, RED, DARK_RED, WHITE, BLACK } = colors
 const { width, height } = Dimensions.get('window')
 
 export default ({ visible, handleClose }) => {
+    const { managers, workers } = useStore()
+    const [data, setData] = useState([])
+
+    useEffect(() => {
+        let arr = [...managers_data, ...workers_data].sort((a, b) => a.cost - b.cost)
+        setData(arr)
+    }, [workers, managers])
+
+    const dataProvider = new DataProvider((r1, r2) => r1.name !== r2.name).cloneWithRows(data)
+
+    const layoutProvider = new LayoutProvider(
+        index => 0,
+        (type, dim) => {
+            dim.width = width - 40
+            dim.height = 100
+        }
+    )
 
     return (
         <Modal visible={visible} transparent={true} animationType='slide' onRequestClose={handleClose}>
@@ -24,13 +47,23 @@ export default ({ visible, handleClose }) => {
                                     <Text style={styles.subtitle}>Hire these workers to boost productivity!</Text>
                                 </View>
                             </View>
-                            <Pressable style={styles.closeCon}>
+                            <Pressable style={styles.closeCon} onPress={handleClose}>
                                 <Image source={CloseIcon} style={styles.closeIcon} />
                             </Pressable>
                         </View>
-                        <View style={styles.cardContainer}>
-                            <UpgradeCard />
-                        </View>
+                        <RecyclerListView
+                            style={{ marginTop: 55 }}
+                            layoutProvider={layoutProvider}
+                            dataProvider={dataProvider}
+                            rowRenderer={(type, data) => (
+                                <UpgradeCard
+                                    title={data.name}
+                                    subtitle={data.type === 'manager' ? `Runs the ${data.business}` : `2x profits for ${data.business}`}
+                                    cost={data.cost}
+                                    form_cost={formulateNumber(data.cost)}
+                                />
+                            )}
+                        />
                     </View>
                 </Animated.View>
             </View>
@@ -62,6 +95,7 @@ const styles = StyleSheet.create({
         paddingVertical: 24,
     },
     modalContent: {
+        flex: 1,
         width: '100%',
     },
     titleContainer: {
@@ -117,7 +151,4 @@ const styles = StyleSheet.create({
         width: 16,
         height: 16,
     },
-    cardContainer: {
-        paddingTop: 55,
-    }
 })

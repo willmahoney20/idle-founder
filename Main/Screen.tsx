@@ -6,7 +6,7 @@ import NotOwned from '../components/businessCard/NotOwned'
 import Businesses from '../data/businesses'
 import Tabs from './Tabs'
 import useStore from '../store'
-import Workers from './Workers'
+import WorkersModal from './Workers'
 
 const buy_quantities = ['1', '10', '100', 'NEXT', 'MAX'] // the possible values for the tags icon in the header
 
@@ -15,6 +15,7 @@ export default () => {
     const [buyQuantity, setBuyQuantity] = useState<string>('1')
     const [currentMoney, setCurrentMoney] = useState<number>(0)
     const [appRefresh, setAppRefresh] = useState<boolean>(false)
+    const [workersModalVisible, setWorkersModalVisible] = useState<boolean>(true)
 
     useEffect(() => {
         if(money){
@@ -27,7 +28,8 @@ export default () => {
 
     return (
         <View style={styles.container}>
-            <Workers visible={true} handleClose={() => console.log('close da thang')} />
+            {workersModalVisible &&
+            <WorkersModal visible={workersModalVisible} handleClose={() => setWorkersModalVisible(false)} />}
 
             <Header money={currentMoney} gems={gems} mega_bucks={mega_bucks} buyQuantity={buyQuantity} handleBuyQuantity={handleBuyQuantity} />
 

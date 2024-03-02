@@ -12,9 +12,13 @@ interface BusinessProps {
     time_divisor: number
 }
 
-interface WorkerProps {
+interface ManagerProps {
     business_id: number,
-    cost: number,
+    owned: boolean
+}
+
+interface WorkerProps {
+    worker_id: number,
     owned: boolean
 }
 
@@ -30,7 +34,7 @@ const initialState = {
         multiplier: 1,
         time_divisor: 1
     })) as BusinessProps[],
-    managers: [...managers] as WorkerProps[],
+    managers: [...managers] as ManagerProps[],
     workers: [...workers] as WorkerProps[],
     last_update: Date.now()
 }

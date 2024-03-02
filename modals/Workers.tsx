@@ -63,7 +63,7 @@ export default ({ visible, handleClose }) => {
                                     title={data.name}
                                     subtitle={data.type === 'manager' ? `Runs the ${data.business}` : `2x profits for ${data.business}`}
                                     cost={data.cost}
-                                    form_cost={formulateNumber(data.cost)}
+                                    form_cost={formulateNumber(data.cost).split(' ')}
                                 />
                             )}
                         />

@@ -9,10 +9,10 @@ interface CardProps {
     title: string,
     subtitle: string,
     cost: number,
-    form_cost: string
+    form_cost: string[]
 }
 
-export default ({ title, subtitle, cost }: CardProps) => {
+export default ({ title, subtitle, cost, form_cost }: CardProps) => {
     return (
         <View style={styles.card}>
             <View style={styles.content}>
@@ -21,14 +21,14 @@ export default ({ title, subtitle, cost }: CardProps) => {
                 </View>
                 <View style={styles.details}>
                     <Text style={styles.title}>{title}</Text>
-                    <Text numberOfLines={1} ellipsizeMode="tail" style={styles.subtitle}>{subtitle}</Text>
+                    <Text numberOfLines={2} ellipsizeMode="tail" style={styles.subtitle}>{subtitle}</Text>
                 </View>
             </View>
             <Pressable>
                 <View style={styles.btn}>
-                    <Text style={styles.btnText}>
-                        ${cost}
-                    </Text>
+                    <Text style={styles.btnText}>${form_cost[1] ? form_cost[0] : form_cost[0]}</Text>
+                    {form_cost[1] &&
+                    <Text style={[styles.btnText, styles.btnTextMinor]} numberOfLines={1}>{form_cost[1]}</Text>}
                 </View>
             </Pressable>
         </View>
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         fontFamily: 'medium',
         fontSize: 11,
         color: BLACK,
-        width: width - 40 - 40 - 80 - 10 - 50 - 10
+        width: width - 232
     },
     btn: {
         justifyContent: 'center',
@@ -81,12 +81,18 @@ const styles = StyleSheet.create({
         borderColor: DARK_RED,
         borderRadius: 10,
         backgroundColor: RED,
-        width: 88,
+        width: 82,
         height: 50,
     },
     btnText: {
         fontFamily: 'bold',
-        fontSize: 15,
+        fontSize: 14,
+        lineHeight: 17,
+        textAlign: 'center',
         color: WHITE
+    },
+    btnTextMinor: {
+        fontSize: 9,
+        lineHeight: 11,
     },
 })

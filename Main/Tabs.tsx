@@ -1,4 +1,4 @@
-import { Dimensions, Image, StyleSheet, Text, View } from 'react-native'
+import { Dimensions, Pressable, Image, StyleSheet, Text, View } from 'react-native'
 import LockIcon from '../assets/tab-icons/lock.png'
 import WorkerIcon from '../assets/tab-icons/worker.png'
 import UpgradeIcon from '../assets/tab-icons/arrow.png'
@@ -9,16 +9,18 @@ import colors from '../assets/ColorPalette'
 const { DARK_BLUE, GREY, BLACK } = colors
 const width = Dimensions.get('window').width
 
-export default () => {
+export default ({ openWorkers }) => {
     return (
         <View style={styles.tabs}>
             <View style={styles.tabBoxRestart}>
                 <Image source={LockIcon} style={styles.lockIcon} />
                 <Text style={styles.lockText}>RESTART</Text>
             </View>
-            <View style={styles.tabBox}>
-                <Image source={WorkerIcon} style={styles.workerIcon} />
-            </View>
+            <Pressable onPress={openWorkers}>
+                <View style={styles.tabBox}>
+                    <Image source={WorkerIcon} style={styles.workerIcon} />
+                </View>
+            </Pressable>
             <View style={styles.tabBox}>
                 <Image source={UpgradeIcon} style={styles.upgradeIcon} />
             </View>

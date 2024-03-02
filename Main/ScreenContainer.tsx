@@ -10,11 +10,16 @@ export default () => {
     return (
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
             {workersModalVisible &&
-            <WorkersModal visible={workersModalVisible} handleClose={() => setWorkersModalVisible(false)} />}
+            <WorkersModal
+                visible={workersModalVisible}
+                handleClose={() => setWorkersModalVisible(false)}
+            />}
             
             <Screen />
 
-            <Tabs />
+            <Tabs
+                openWorkers={() => setWorkersModalVisible(true)}
+            />
         </View>
     )
 }

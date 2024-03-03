@@ -1,46 +1,53 @@
 import { useEffect, useState } from 'react'
-import { ScrollView } from 'react-native'
+import { StyleSheet, View, ScrollView } from 'react-native'
 import Header from './Header'
 import Owned from '../components/businessCard/Owned'
 import NotOwned from '../components/businessCard/NotOwned'
 import Businesses from '../data/businesses'
-import useStore from '../store'
+import Tabs from './Tabs'
+import { useStore, moneyStore } from '../store'
+import WorkersModal from '../modals/Workers'
 
 const buy_quantities = ['1', '10', '100', 'NEXT', 'MAX'] // the possible values for the tags icon in the header
 
 export default () => {
-    const { resetInitialState, money, gems, mega_bucks, global_multiplier, global_divisor, businesses, managers, workers } = useStore()
+    const { resetInitialState, gems, mega_bucks, global_multiplier, global_divisor, businesses, managers, workers } = useStore()
     const [buyQuantity, setBuyQuantity] = useState<string>('1')
-    const [currentMoney, setCurrentMoney] = useState<number>(0)
     const [appRefresh, setAppRefresh] = useState<boolean>(false)
+    const [workersModalVisible, setWorkersModalVisible] = useState<boolean>(true)
 
-    useEffect(() => {
-        if(money){
-            setCurrentMoney(money)
-            setAppRefresh(prev => !prev) // when currentMoney is updated we need to rerender some values such as upgrade prices
-        }
-    }, [money])
+    // useEffect(() => {
+    //     if(money){
+    //         setCurrentMoney(money)
+    //         setAppRefresh(prev => !prev) // when currentMoney is updated we need to rerender some values such as upgrade prices
+    //     }
+    // }, [money])
+
+    // useEffect(() => {
+    //     resetInitialState()
+    // }, [])
 
     const handleBuyQuantity = () => setBuyQuantity(prev => prev === 'MAX' ? '1' : buy_quantities[buy_quantities.indexOf(prev) + 1])
 
     return (
-        <>
-            <Header money={currentMoney} gems={gems} mega_bucks={mega_bucks} buyQuantity={buyQuantity} handleBuyQuantity={handleBuyQuantity} />
+        <View style={styles.container}>
+            {workersModalVisible &&
+            <WorkersModal
+                visible={workersModalVisible}
+                handleClose={() => setWorkersModalVisible(false)}
+            />}
 
-            <ScrollView
-                style={{ flex: 1, padding: 15, zIndex: 1 }}
-                showsVerticalScrollIndicator={false}
-            >
+            <Header gems={gems} mega_bucks={mega_bucks} buyQuantity={buyQuantity} handleBuyQuantity={handleBuyQuantity} />
+
+            <ScrollView style={styles.cardContainer} showsVerticalScrollIndicator={false}>
                 {Businesses.map((business, index) => {
                     let id = business.id
                     return businesses[index].level > 0 ? <Owned
                         key={id}
                         reload={appRefresh}
                         buyQuantity={buyQuantity}
-                        money={currentMoney}
                         manager={managers[index].owned}
                         workers={[managers[id], workers[id * 2], workers[id * 2 + 1]]}
-                        updateMoneyState={(value: number): void => setCurrentMoney(prev => prev += value)}
                         id={id}
                         title={business.name}
                         level={businesses[index].level}
@@ -55,12 +62,27 @@ export default () => {
                     /> : <NotOwned 
                         key={id}
                         id={id}
-                        money={currentMoney}
                         title={business.name}
                         init_cost={business.init_cost}
                     />
                 })}
             </ScrollView>
-        </>
+
+            <Tabs
+                openWorkers={() => setWorkersModalVisible(true)}
+            />
+        </View>
     )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'space-between'
+    },
+    cardContainer: {
+        flex: 1,
+        padding: 15,
+        zIndex: 1
+    }
+})

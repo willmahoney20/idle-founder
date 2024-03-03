@@ -3,7 +3,7 @@ import { StyleSheet, Pressable, Image, Modal, Animated, View, Dimensions, Text }
 import colors from '../assets/ColorPalette'
 import CloseIcon from '../assets/tab-icons/close.png'
 import UpgradeCard from '../components/UpgradeCard'
-import useStore from '../store'
+import { useStore } from '../store'
 import managers_data from '../data/managers'
 import workers_data from '../data/workers'
 import formulateNumber from '../functions/formulateNumber'
@@ -27,7 +27,7 @@ export default ({ visible, handleClose }) => {
     const layoutProvider = new LayoutProvider(
         index => 0,
         (type, dim) => {
-            dim.width = width - 40
+            dim.width = width - 32
             dim.height = 100
         }
     )
@@ -55,9 +55,12 @@ export default ({ visible, handleClose }) => {
                             </Pressable>
                         </View>
                         <RecyclerListView
-                            style={{ marginTop: 55 }}
+                            style={{ marginTop: 36 }}
                             layoutProvider={layoutProvider}
                             dataProvider={dataProvider}
+                            scrollViewProps={{
+                                showsVerticalScrollIndicator: false
+                            }}                           
                             rowRenderer={(type, data) => (
                                 <UpgradeCard
                                     title={data.name}
@@ -96,6 +99,7 @@ const styles = StyleSheet.create({
         elevation: 5,
         padding: 16,
         paddingVertical: 24,
+        paddingBottom: 5,
     },
     modalContent: {
         flex: 1,

@@ -1,8 +1,9 @@
 import { Dimensions, View, StyleSheet, Image, Text, Pressable } from "react-native"
 import colors from '../assets/ColorPalette'
 import Hotdog from '../assets/business-icons/hotdog_128.png'
+import { moneyStore } from "../store"
 
-const { WHITE, BLACK, GREEN, LIGHT_GREEN, RED, DARK_RED } = colors
+const { WHITE, BLACK, GREEN, LIGHT_GREEN, RED, DARK_RED, GREY } = colors
 const { width } = Dimensions.get('window')
 
 interface CardProps {
@@ -13,6 +14,8 @@ interface CardProps {
 }
 
 export default ({ title, subtitle, cost, form_cost }: CardProps) => {
+    const { money } = moneyStore()
+
     return (
         <View style={styles.card}>
             <View style={styles.content}>
@@ -25,10 +28,38 @@ export default ({ title, subtitle, cost, form_cost }: CardProps) => {
                 </View>
             </View>
             <Pressable>
-                <View style={styles.btn}>
-                    <Text style={styles.btnText}>${form_cost[1] ? form_cost[0] : form_cost[0]}</Text>
+                <View
+                    style={[
+                        styles.btn,
+                        {
+                            backgroundColor: money >= cost ? RED : GREY,
+                            borderColor: money >= cost ? DARK_RED : '#AAA'
+                        }
+                    ]}
+                >
+                    <Text
+                        style={[
+                            styles.btnText,
+                            {
+                                color: money >= cost ? WHITE : BLACK
+                            }
+                        ]}
+                    >
+                        ${form_cost[1] ? form_cost[0] : form_cost[0]}
+                    </Text>
                     {form_cost[1] &&
-                    <Text style={[styles.btnText, styles.btnTextMinor]} numberOfLines={1}>{form_cost[1]}</Text>}
+                    <Text
+                        style={[
+                            styles.btnText,
+                            styles.btnTextMinor,
+                            {
+                                color: money >= cost ? WHITE : BLACK
+                            }
+                        ]}
+                        numberOfLines={1}
+                    >
+                        {form_cost[1]}
+                    </Text>}
                 </View>
             </Pressable>
         </View>
@@ -43,7 +74,7 @@ const styles = StyleSheet.create({
         borderColor: GREEN,
         borderRadius: 10,
         padding: 12,
-        marginBottom: 10,
+        marginTop: 10,
         backgroundColor: LIGHT_GREEN,
     },
     content: {

@@ -5,7 +5,7 @@ export default [
         business: 'Hotdog Stand',
         name: 'William Grill',
         cost: 1e+3, // 1 thousand
-        owned: true
+        owned: false
     },
     {
         type: 'manager',

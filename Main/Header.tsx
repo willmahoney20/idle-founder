@@ -6,18 +6,19 @@ import MegaBucksIcon from '../assets/header-icons/mega_bucks.png'
 import TagsIcon from '../assets/header-icons/tags.png'
 import colors from '../assets/ColorPalette'
 import formulateNumber from '../functions/formulateNumber'
+import { moneyStore } from '../store'
 
 const { DARK_BLUE, WHITE } = colors
 
 type HeaderProps = {
-    money: number,
     gems: number,
     mega_bucks: number,
     buyQuantity: string,
     handleBuyQuantity: () => void
 }
 
-export default ({ money, gems, mega_bucks, buyQuantity, handleBuyQuantity }: HeaderProps) => {
+export default ({ gems, mega_bucks, buyQuantity, handleBuyQuantity }: HeaderProps) => {
+    const { money } = moneyStore()
     let forumlated_money = formulateNumber(money).split(" ")
     let forumlated_mega_bucks = formulateNumber(mega_bucks).split(" ")
 

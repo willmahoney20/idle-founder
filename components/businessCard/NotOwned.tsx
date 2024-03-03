@@ -4,18 +4,18 @@ import styles from '../../styles/businessCardStyles'
 import icons from './BusinessCardIcons'
 import colors from '../../assets/ColorPalette'
 import formulateNumber from '../../functions/formulateNumber'
-import useStore from '../../store'
+import { moneyStore, useStore } from '../../store'
 
 const { WHITE, BLACK } = colors
 
 type NotOwnedProps = {
     id: number,
-    money: number,
     title: string,
     init_cost: number
 }
 
-export default ({ id, money, init_cost, title }: NotOwnedProps) => {
+export default ({ id, init_cost, title }: NotOwnedProps) => {
+    const { money } = moneyStore()
     const { updateBusinessLevel } = useStore()
     const [initCost, setInitCost] = useState<string>('')
 

@@ -19,10 +19,10 @@ export default () => {
 
 	return (
 		<View style={styles.container}>
-			<SafeAreaView style={{ flex: 1 }}>
+			{/* <SafeAreaView style={{ flex: 1 }}> */}
 				<StatusBar hidden />
 				<Screen />
-			</SafeAreaView>
+			{/* </SafeAreaView> */}
 		</View>
 	)
 }

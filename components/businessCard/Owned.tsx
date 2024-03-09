@@ -9,6 +9,8 @@ import icons from './BusinessCardIcons'
 import { UPS } from '../../globals'
 import Upgrades from './Upgrades'
 import { moneyStore } from '../../store'
+import Countdown from './Countdown'
+import ProgressBar from './ProgressBar'
 
 type BusinessCardProps = {
     reload: boolean,
@@ -29,13 +31,11 @@ type BusinessCardProps = {
 }
 
 export default ({ reload, buyQuantity, manager, workers, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
-    const { updateMoney } = moneyStore()
     const [levelProgress, setLevelProgress] = useState<number>(0)
     const [payout, setPayout] = useState<number>(0)
     const [duration, setDuration] = useState<number | null>(null)
     const [endTime, setEndTime] = useState<number | null>(null)
-    const [timeLeft, setTimeLeft] = useState(null)
-    const progress = useRef(new Animated.Value(0)).current
+    const [btnChange, setBtnChange] = useState<boolean>(false)
     
     useEffect(() => {
         setLevelProgress(calculatePercentage(milestones, level)) // calculate the % progress of the levels (in relation to the next milestone)
@@ -43,70 +43,7 @@ export default ({ reload, buyQuantity, manager, workers, id, title, level, init_
         setDuration(init_timer / time_divisor / global_divisor)
     }, [level, multiplier, time_divisor, global_divisor])
 
-    const runAnimation = (): void => {
-        setEndTime(Date.now() + (duration * 1000))
-        setTimeLeft(duration)
-
-        Animated.timing(progress, {
-            toValue: 100,
-            duration: duration * 1000,
-            useNativeDriver: false
-        }).start(({ finished }) => {
-            if(finished){
-                progress.setValue(0)
-                updateMoney(payout)
-                setEndTime(null)
-
-                // if we have a manager, restart the timer/animation
-                if(manager) runAnimation()
-            }
-        })
-    }
-  
-    // start the animation automatically if the user has a manager for this business
-    useEffect(() => {
-        if(duration && manager){
-            if(duration < (1 / UPS)){
-                progress.setValue(100)
-                
-                const interval = setInterval(() => {
-                    updateMoney(((1 / UPS) / duration) * payout)
-                }, (1 / UPS) * 1000)
-        
-                return () => clearInterval(interval)
-            } else {
-                // check if the animation is in progress, if it is, add a delay to the runAnimation()
-                if(!endTime){
-                    runAnimation()
-                } else {
-                    setTimeout(() => runAnimation(), endTime - Date.now())
-                }
-            }
-        }
-    }, [duration, manager])
-
-    // set the time remaining
-    useEffect(() => {
-        // check we are displaying a timer
-        if(duration > (1 / UPS)){
-            const interval = setInterval(() => {
-                const currentTime = Date.now()
-                const timeRemaining = Math.max(0, Math.floor((endTime - currentTime) / 1000))
-                setTimeLeft(timeRemaining);
-                if (timeRemaining <= 0) clearInterval(interval)
-            }, 500)
-    
-            return () => clearInterval(interval)
-        }
-    }, [endTime])
-
-    const handlePress = () => !manager && !endTime ? runAnimation() : null
-
-    // convert progress into % width
-    const progressWidth = progress.interpolate({
-        inputRange: [0, 100],
-        outputRange: ['0%', '100%']
-    })
+    const handlePress = () => !manager && !endTime ? setBtnChange(prev => !prev) : null
     
     return (
         <View style={[styles.card, { marginBottom: id === 9 ? 30 : 20 }]}>
@@ -138,13 +75,18 @@ export default ({ reload, buyQuantity, manager, workers, id, title, level, init_
                 </View>
             </View>
             <View style={styles.layer}>
-                <View style={styles.timeBox}>
-                    <Animated.View style={[styles.timeProgress, { width: progressWidth}]}></Animated.View>
-                    <Text style={styles.timeText}>${formulateNumber(payout)}</Text>
-                </View>
-                <View style={[styles.infoBox, { justifyContent: 'center' }]}>
-                    <Text style={styles.timeText}>{formatTimer(timeLeft)}</Text>
-                </View>
+                <ProgressBar
+                    manager={manager}
+                    duration={duration}
+                    endTime={endTime}
+                    updateEndTime={value => setEndTime(value)}
+                    payout={payout}
+                    btnChange={btnChange}
+                />
+                <Countdown
+                    duration={duration}
+                    endTime={endTime}
+                />
             </View>
         </View>
     )

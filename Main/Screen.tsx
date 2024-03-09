@@ -14,7 +14,7 @@ export default () => {
     const { resetInitialState, gems, mega_bucks, global_multiplier, global_divisor, businesses, managers, workers } = useStore()
     const [buyQuantity, setBuyQuantity] = useState<string>('1')
     const [appRefresh, setAppRefresh] = useState<boolean>(false)
-    const [workersModalVisible, setWorkersModalVisible] = useState<boolean>(true)
+    const [workersModalVisible, setWorkersModalVisible] = useState<boolean>(false)
 
     // useEffect(() => {
     //     if(money){

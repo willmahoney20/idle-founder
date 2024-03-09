@@ -39,7 +39,7 @@ const initialState = {
     global_divisor: 1,
     businesses: Array.from({ length: 10 }, (_, index) => ({
         id: index,
-        level: index < 1 ? 1 : 0, // set the level of the hotdog stand to 1, but all other businesses should be set to 0, as the user doesn't own them
+        level: index < 1 ? 25 : index < 11 ? 1 : 0, // set the level of the hotdog stand to 1, but all other businesses should be set to 0, as the user doesn't own them
         multiplier: 1,
         time_divisor: 1
     })) as BusinessProps[],

@@ -23,7 +23,7 @@ export default ({ id, init_cost, title }: NotOwnedProps) => {
         setInitCost(formulateNumber(init_cost))
     }, [init_cost])
 
-    const handleBusinessPurchase = () => updateBusinessLevel(money, id, 1, init_cost)
+    const handleBusinessPurchase = () => updateBusinessLevel(id, 1, init_cost)
 
     return (
         <View style={[styles.darkCard, { marginBottom: id === 9 ? 30 : 20, borderWidth: money > init_cost ? 6 : 0 }]}>

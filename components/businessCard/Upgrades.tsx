@@ -11,7 +11,7 @@ import formulateNumber from '../../functions/formulateNumber'
 
 const { GREEN, GREY } = colors
 
-export default ({ id, workers, manager, buyQuantity, init_cost, level, coefficient, reload }) => {
+export default ({ id, workers, manager, buyQuantity, init_cost, level, coefficient }) => {
     const { money } = moneyStore()
     const { updateBusinessLevel, updateManager, updateWorker } = useStore()
     const [nextUpgradeCost, setNextUpgradeCost] = useState<number>(0)
@@ -39,7 +39,7 @@ export default ({ id, workers, manager, buyQuantity, init_cost, level, coefficie
     // get the next upgrade data for this business
     useEffect(() => {
         updateLevelDetails()
-    }, [buyQuantity, reload])
+    }, [buyQuantity, level])
 
     // check if the user's funds have surpassed the cost of another level upgrade
     if(buyQuantity === 'MAX' && money >= nextMaxCost) updateLevelDetails()
@@ -77,7 +77,7 @@ export default ({ id, workers, manager, buyQuantity, init_cost, level, coefficie
     const handleLevelUpgrade = () => {
         // check user has sufficient funds for upgrade
         if(nextUpgradePossible){
-            updateBusinessLevel(money, id, levelCount, nextUpgradeCost)
+            updateBusinessLevel(id, levelCount, nextUpgradeCost)
         }
     }
 
@@ -85,10 +85,10 @@ export default ({ id, workers, manager, buyQuantity, init_cost, level, coefficie
         // check user has sufficient funds for buying this worker
         if(nextWorkerPossible && nextWorkerFormulated !== 'HIRED'){
             if(nextWorkerType === 'manager'){
-                updateManager(money, id, nextWorkerCost)
+                updateManager(id, nextWorkerCost)
             } else if(nextWorkerType.includes('worker')){
                 const worker_id = id * 2 + parseInt(nextWorkerType.split(' ')[1])
-                updateWorker(money, id, worker_id, nextWorkerCost)
+                updateWorker(id, worker_id, nextWorkerCost)
                 handleWorkerDetails()
             }
         }

@@ -13,7 +13,6 @@ import Countdown from './Countdown'
 import ProgressBar from './ProgressBar'
 
 type BusinessCardProps = {
-    reload: boolean,
     buyQuantity: string,
     manager: boolean,
     workers: { manager_id?: number, worker_id?: number, owned: boolean }[],
@@ -30,7 +29,7 @@ type BusinessCardProps = {
     global_divisor: number
 }
 
-export default ({ reload, buyQuantity, manager, workers, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
+export default ({ buyQuantity, manager, workers, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
     const [levelProgress, setLevelProgress] = useState<number>(0)
     const [payout, setPayout] = useState<number>(0)
     const [duration, setDuration] = useState<number | null>(null)
@@ -70,7 +69,6 @@ export default ({ reload, buyQuantity, manager, workers, id, title, level, init_
                         init_cost={init_cost}
                         level={level}
                         coefficient={coefficient}
-                        reload={reload}
                     />
                 </View>
             </View>

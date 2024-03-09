@@ -18,12 +18,12 @@ export default () => {
 	if(!fontsLoaded && !fontError) return null
 
 	return (
-		<View style={styles.container}>
-			{/* <SafeAreaView style={{ flex: 1 }}> */}
-				<StatusBar hidden />
+		<SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+			<StatusBar hidden />
+			<View style={styles.container}>
 				<Screen />
-			{/* </SafeAreaView> */}
-		</View>
+			</View>
+		</SafeAreaView>
 	)
 }
 

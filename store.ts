@@ -51,10 +51,9 @@ const initialState = {
 export const useStore = create(
     persist(
         combine(initialState, set => ({
-            updateBusinessLevel: (money: number, id: number, levels: number, cost: number): void => set(state => {
+            updateBusinessLevel: (id: number, levels: number, cost: number): void => set(state => {
                 let businesses = state.businesses
 
-                const updated_money = money - cost
                 const current_level = businesses[id]['level']
                 const new_level = current_level + levels
                 businesses[id]['level'] = new_level
@@ -72,27 +71,31 @@ export const useStore = create(
                     }
                 }
 
-                return { money: updated_money, businesses, last_update: Date.now() }
+                moneyStore.getState().updateMoney(-cost)
+
+                return { businesses, last_update: Date.now() }
             }),
             // - update managers
-            updateManager: (money: number, id: number, cost: number): void => set(state => {
+            updateManager: (id: number, cost: number): void => set(state => {
                 let managers = state.managers
 
-                const updated_money = money - cost
                 managers[id]['owned'] = true
 
-                return { money: updated_money, managers, last_update: Date.now() }
+                moneyStore.getState().updateMoney(-cost)
+
+                return { managers, last_update: Date.now() }
             }),
             // - update workers
-            updateWorker: (money: number, id: number, worker_id: number, cost: number): void => set(state => {
+            updateWorker: (id: number, worker_id: number, cost: number): void => set(state => {
                 let workers = state.workers
                 let businesses = state.businesses
 
-                const updated_money = money - cost
                 workers[worker_id]['owned'] = true
                 businesses[id]['multiplier'] *= 2
 
-                return { money: updated_money, workers, businesses, last_update: Date.now() }
+                moneyStore.getState().updateMoney(-cost)
+
+                return { workers, businesses, last_update: Date.now() }
             }),
 
             resetInitialState: () => set(initialState)

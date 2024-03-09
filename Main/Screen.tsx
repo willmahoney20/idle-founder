@@ -13,15 +13,7 @@ const buy_quantities = ['1', '10', '100', 'NEXT', 'MAX'] // the possible values 
 export default () => {
     const { resetInitialState, gems, mega_bucks, global_multiplier, global_divisor, businesses, managers, workers } = useStore()
     const [buyQuantity, setBuyQuantity] = useState<string>('1')
-    const [appRefresh, setAppRefresh] = useState<boolean>(false)
     const [workersModalVisible, setWorkersModalVisible] = useState<boolean>(false)
-
-    // useEffect(() => {
-    //     if(money){
-    //         setCurrentMoney(money)
-    //         setAppRefresh(prev => !prev) // when currentMoney is updated we need to rerender some values such as upgrade prices
-    //     }
-    // }, [money])
 
     // useEffect(() => {
     //     resetInitialState()
@@ -44,7 +36,6 @@ export default () => {
                     let id = business.id
                     return businesses[index].level > 0 ? <Owned
                         key={id}
-                        reload={appRefresh}
                         buyQuantity={buyQuantity}
                         manager={managers[index].owned}
                         workers={[managers[id], workers[id * 2], workers[id * 2 + 1]]}

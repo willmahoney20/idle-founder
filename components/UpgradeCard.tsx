@@ -1,6 +1,6 @@
 import { Dimensions, View, StyleSheet, Image, Text, Pressable } from "react-native"
 import colors from '../assets/ColorPalette'
-import Hotdog from '../assets/business-icons/hotdog_128.png'
+import UpgradeCardIcons from './UpgradeCardIcons'
 import { moneyStore, useStore } from "../store"
 
 const { WHITE, BLACK, GREEN, LIGHT_GREEN, RED, DARK_RED, GREY } = colors
@@ -26,7 +26,7 @@ export default ({ id, worker_id, last_card, type, title, subtitle, cost, form_co
         <View style={[styles.card, { marginBottom: last_card ? 20 : 0 }]}>
             <View style={styles.content}>
                 <View style={styles.iconCon}>
-                    <Image source={Hotdog} style={styles.icon} />
+                    <Image source={UpgradeCardIcons[id]} style={styles.icon} />
                 </View>
                 <View style={styles.details}>
                     <Text style={styles.title}>{title}</Text>

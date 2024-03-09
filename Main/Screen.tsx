@@ -11,7 +11,7 @@ import WorkersModal from '../modals/Workers'
 const buy_quantities = ['1', '10', '100', 'NEXT', 'MAX'] // the possible values for the tags icon in the header
 
 export default () => {
-    const { resetInitialState, gems, mega_bucks, global_multiplier, global_divisor, businesses, managers, workers } = useStore()
+    const { resetInitialState, gems, mega_bucks, global_multiplier, global_divisor, businesses } = useStore()
     const [buyQuantity, setBuyQuantity] = useState<string>('1')
     const [workersModalVisible, setWorkersModalVisible] = useState<boolean>(false)
 
@@ -37,8 +37,6 @@ export default () => {
                     return businesses[index].level > 0 ? <Owned
                         key={id}
                         buyQuantity={buyQuantity}
-                        manager={managers[index].owned}
-                        workers={[managers[id], workers[id * 2], workers[id * 2 + 1]]}
                         id={id}
                         title={business.name}
                         level={businesses[index].level}

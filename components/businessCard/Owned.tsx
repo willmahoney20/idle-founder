@@ -6,16 +6,13 @@ import milestones from '../../data/milestones'
 import calculatePercentage from '../../functions/calculatePercentage'
 import styles from '../../styles/businessCardStyles'
 import icons from './BusinessCardIcons'
-import { UPS } from '../../globals'
 import Upgrades from './Upgrades'
-import { moneyStore } from '../../store'
+import { useStore } from '../../store'
 import Countdown from './Countdown'
 import ProgressBar from './ProgressBar'
 
 type BusinessCardProps = {
     buyQuantity: string,
-    manager: boolean,
-    workers: { manager_id?: number, worker_id?: number, owned: boolean }[],
     id: number,
     title: string,
     level: number,
@@ -29,13 +26,21 @@ type BusinessCardProps = {
     global_divisor: number
 }
 
-export default ({ buyQuantity, manager, workers, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
+export default ({ buyQuantity, id, title, level, init_cost, init_payout, init_timer, coefficient, multiplier, time_divisor, global_multiplier, global_divisor }: BusinessCardProps) => {
+    const { managers, workers } = useStore()
     const [levelProgress, setLevelProgress] = useState<number>(0)
     const [payout, setPayout] = useState<number>(0)
     const [duration, setDuration] = useState<number | null>(null)
     const [endTime, setEndTime] = useState<number | null>(null)
     const [btnChange, setBtnChange] = useState<boolean>(false)
-    
+    const [manager, setManager] = useState<boolean>(false)
+    const [workersArr, setWorkersArr] = useState([])
+
+    useEffect(() => {
+        setManager(managers[id].owned)
+        setWorkersArr([managers[id], workers[id * 2], workers[id * 2 + 1]])
+    }, [managers[id].owned, workers[id * 2].owned, workers[id * 2 + 1].owned])
+
     useEffect(() => {
         setLevelProgress(calculatePercentage(milestones, level)) // calculate the % progress of the levels (in relation to the next milestone)
         setPayout(init_payout * level * multiplier * global_multiplier)
@@ -43,6 +48,8 @@ export default ({ buyQuantity, manager, workers, id, title, level, init_cost, in
     }, [level, multiplier, time_divisor, global_divisor])
 
     const handlePress = () => !manager && !endTime ? setBtnChange(prev => !prev) : null
+
+    if(workersArr.length < 3) return null
     
     return (
         <View style={[styles.card, { marginBottom: id === 9 ? 30 : 20 }]}>
@@ -63,7 +70,7 @@ export default ({ buyQuantity, manager, workers, id, title, level, init_cost, in
 
                     <Upgrades
                         id={id}
-                        workers={workers}
+                        workers={workersArr}
                         manager={manager}
                         buyQuantity={buyQuantity}
                         init_cost={init_cost}
@@ -81,10 +88,10 @@ export default ({ buyQuantity, manager, workers, id, title, level, init_cost, in
                     payout={payout}
                     btnChange={btnChange}
                 />
-                <Countdown
+                {/* <Countdown
                     duration={duration}
                     endTime={endTime}
-                />
+                /> */}
             </View>
         </View>
     )

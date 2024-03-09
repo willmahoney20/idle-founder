@@ -17,8 +17,12 @@ export default ({ visible, handleClose }) => {
     const [data, setData] = useState([])
 
     useEffect(() => {
-        console.log('here')
-        let arr = [...managers_data, ...workers_data].sort((a, b) => a.cost - b.cost)
+        let arr = [
+            ...managers_data.filter((x, i) => !managers[i].owned),
+            ...workers_data.filter((x, i) => !workers[i].owned)
+        ]
+            .sort((a, b) => a.cost - b.cost)
+
         setData(arr)
     }, [workers, managers])
 
@@ -26,13 +30,11 @@ export default ({ visible, handleClose }) => {
 
     const layoutProvider = new LayoutProvider(
         index => 0,
-        (type, dim) => {
+        (type, dim, index) => {
             dim.width = width - 32
-            dim.height = 100
+            dim.height = index === data.length - 1 ? 120 : 100
         }
     )
-
-    console.log('not ideal')
 
     return (
         <Modal visible={visible} transparent={true} animationType='slide' onRequestClose={handleClose}>
@@ -54,6 +56,16 @@ export default ({ visible, handleClose }) => {
                                 <Image source={CloseIcon} style={styles.closeIcon} />
                             </Pressable>
                         </View>
+                        {data.length < 1 ?
+                        <View style={styles.noCards}>
+                            <Text style={styles.noCardsTitle}>
+                                Nice Work
+                            </Text>
+                            <Text style={styles.noCardsText}>
+                                You've bought all the available workers!
+                            </Text>
+                        </View>
+                        :
                         <RecyclerListView
                             style={{ marginTop: 36 }}
                             layoutProvider={layoutProvider}
@@ -61,15 +73,24 @@ export default ({ visible, handleClose }) => {
                             scrollViewProps={{
                                 showsVerticalScrollIndicator: false
                             }}                           
-                            rowRenderer={(type, data) => (
+                            rowRenderer={(type, data, index) => (
                                 <UpgradeCard
+                                    id={data.business_id}
+                                    worker_id={data.worker_id}
+                                    last_card={index === data.length - 1 ? true : false}
+                                    type={data.type}
                                     title={data.name}
                                     subtitle={data.type === 'manager' ? `Runs the ${data.business}` : `2x profits for ${data.business}`}
                                     cost={data.cost}
                                     form_cost={formulateNumber(data.cost).split(' ')}
+                                    removeCard={() => {
+                                        setData(prev => {
+                                            return [...prev].filter((x, i) => index === i ? false : true)
+                                        })
+                                    }}
                                 />
                             )}
-                        />
+                        />}
                     </View>
                 </Animated.View>
             </View>
@@ -158,4 +179,22 @@ const styles = StyleSheet.create({
         width: 16,
         height: 16,
     },
+    noCards: {
+        height: 400,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    noCardsTitle: {
+        fontFamily: 'bold',
+        fontSize: 18,
+        textAlign: 'center',
+        marginBottom: 10,
+        color: BLACK
+    },
+    noCardsText: {
+        fontFamily: 'bold',
+        fontSize: 12,
+        textAlign: 'center',
+        color: BLACK
+    }
 })

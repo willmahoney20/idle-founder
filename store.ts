@@ -23,7 +23,7 @@ interface WorkerProps {
 }
 
 const initialMoney = {
-    money: 228000
+    money: 22228000
 }
 
 export const moneyStore = create(

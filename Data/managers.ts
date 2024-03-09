@@ -13,7 +13,7 @@ export default [
         business: 'Laundromat',
         name: 'Jack Suds',
         cost: 2e+4, // 20 thousand
-        owned: true
+        owned: false
     },
     {
         type: 'manager',
@@ -21,7 +21,7 @@ export default [
         business: 'Comic Book Store',
         name: 'Peter Parker',
         cost: 2e+5, // 200 thousand
-        owned: true
+        owned: false
     },
     {
         type: 'manager',
@@ -29,7 +29,7 @@ export default [
         business: 'Fast Food Restaurant',
         name: 'Tom Fryer',
         cost: 1e+6, // 1 million
-        owned: true
+        owned: false
     },
     {
         type: 'manager',
@@ -37,7 +37,7 @@ export default [
         business: 'Fitness Center',
         name: 'Olivia Fitwell',
         cost: 4e+6, // 4 million
-        owned: true
+        owned: false
     },
     {
         type: 'manager',
@@ -45,7 +45,7 @@ export default [
         business: 'Movie Theater',
         name: 'Max Reeler',
         cost: 1.5e+7, // 15 million
-        owned: true
+        owned: false
     },
     {
         type: 'manager',
@@ -53,7 +53,7 @@ export default [
         business: 'Sports Franchise',
         name: 'Charlie Team',
         cost: 5e+7, // 50 million
-        owned: true
+        owned: false
     },
     {
         type: 'manager',
@@ -61,7 +61,7 @@ export default [
         business: 'Airline Company',
         name: 'Emily Flyer',
         cost: 2.5e+8, // 250 million
-        owned: true
+        owned: false
     },
     {
         type: 'manager',
@@ -69,7 +69,7 @@ export default [
         business: 'Global Streaming Platform',
         name: 'Luke Streamer',
         cost: 9e+8, // 900 million
-        owned: true
+        owned: false
     },
     {
         type: 'manager',
@@ -77,6 +77,6 @@ export default [
         business: 'Space Tourism Company',
         name: 'Stella Orbitz',
         cost: 7.5e+9, // 7.5 billion
-        owned: true
+        owned: false
     },
 ]

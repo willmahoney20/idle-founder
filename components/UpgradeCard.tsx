@@ -1,23 +1,29 @@
 import { Dimensions, View, StyleSheet, Image, Text, Pressable } from "react-native"
 import colors from '../assets/ColorPalette'
 import Hotdog from '../assets/business-icons/hotdog_128.png'
-import { moneyStore } from "../store"
+import { moneyStore, useStore } from "../store"
 
 const { WHITE, BLACK, GREEN, LIGHT_GREEN, RED, DARK_RED, GREY } = colors
 const { width } = Dimensions.get('window')
 
 interface CardProps {
+    id: number,
+    worker_id: number,
+    last_card: boolean,
+    type: string,
     title: string,
     subtitle: string,
     cost: number,
-    form_cost: string[]
+    form_cost: string[],
+    removeCard: () => void
 }
 
-export default ({ title, subtitle, cost, form_cost }: CardProps) => {
+export default ({ id, worker_id, last_card, type, title, subtitle, cost, form_cost, removeCard }: CardProps) => {
     const { money } = moneyStore()
+    const { updateManager, updateWorker } = useStore()
 
     return (
-        <View style={styles.card}>
+        <View style={[styles.card, { marginBottom: last_card ? 20 : 0 }]}>
             <View style={styles.content}>
                 <View style={styles.iconCon}>
                     <Image source={Hotdog} style={styles.icon} />
@@ -27,41 +33,34 @@ export default ({ title, subtitle, cost, form_cost }: CardProps) => {
                     <Text numberOfLines={2} ellipsizeMode="tail" style={styles.subtitle}>{subtitle}</Text>
                 </View>
             </View>
-            <Pressable>
-                <View
-                    style={[
-                        styles.btn,
-                        {
-                            backgroundColor: money >= cost ? RED : GREY,
-                            borderColor: money >= cost ? DARK_RED : '#AAA'
+            {money >= cost ?
+                <Pressable
+                    onPress={() => {
+                        if(type === 'manager'){
+                            updateManager(id, cost)
+                        } else {
+                            updateWorker(id, worker_id, cost)
                         }
-                    ]}
+
+                        removeCard()
+                    }}
                 >
-                    <Text
-                        style={[
-                            styles.btnText,
-                            {
-                                color: money >= cost ? WHITE : BLACK
-                            }
-                        ]}
-                    >
-                        ${form_cost[1] ? form_cost[0] : form_cost[0]}
-                    </Text>
+                    <View style={[styles.btn, styles.btnRed]}>
+                        <Text style={[styles.btnText, styles.btnTextWhite]}>${form_cost[0]}</Text>
+                        {form_cost[1] &&
+                        <Text style={[styles.btnText, styles.btnTextMinor, styles.btnTextWhite]} numberOfLines={1}>
+                            {form_cost[1]}
+                        </Text>}
+                    </View>
+                </Pressable>
+            : 
+                <View style={styles.btn}>
+                    <Text style={styles.btnText}>${form_cost[0]}</Text>
                     {form_cost[1] &&
-                    <Text
-                        style={[
-                            styles.btnText,
-                            styles.btnTextMinor,
-                            {
-                                color: money >= cost ? WHITE : BLACK
-                            }
-                        ]}
-                        numberOfLines={1}
-                    >
+                    <Text style={[styles.btnText, styles.btnTextMinor]} numberOfLines={1}>
                         {form_cost[1]}
                     </Text>}
-                </View>
-            </Pressable>
+                </View>}
         </View>
     )
 }
@@ -109,21 +108,32 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: DARK_RED,
+        borderColor: '#AAA',
         borderRadius: 10,
-        backgroundColor: RED,
+        backgroundColor: GREY,
         width: 82,
         height: 50,
+    },
+    btnRed: {
+        backgroundColor: RED,
+        borderColor: DARK_RED
+    },
+    btnGold: {
+        backgroundColor: '#ffd60a',
+        borderColor: '#ffc300'
     },
     btnText: {
         fontFamily: 'bold',
         fontSize: 14,
         lineHeight: 17,
         textAlign: 'center',
-        color: WHITE
+        color: BLACK
     },
     btnTextMinor: {
         fontSize: 9,
         lineHeight: 11,
     },
+    btnTextWhite: {
+        color: WHITE
+    }
 })

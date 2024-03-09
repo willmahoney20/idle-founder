@@ -40,11 +40,12 @@ export default ({ id, workers, manager, buyQuantity, init_cost, level, coefficie
     useEffect(() => {
         updateLevelDetails()
     }, [buyQuantity, level])
-    
+
     // check if the user's funds have surpassed the cost of another level upgrade
     if(buyQuantity === 'MAX' && money >= nextMaxCost) updateLevelDetails()
 
-    if(nextUpgradePossible && money < nextUpgradeCost) setNextUpgradePossible(false)
+    // if next update is no longer possible, then we need to recalculate
+    if(nextUpgradePossible && money < nextUpgradeCost) updateLevelDetails()    
     if(!nextUpgradePossible && money >= nextUpgradeCost) setNextUpgradePossible(true)
 
     // function for getting the next worker upgrade details

@@ -5,7 +5,8 @@ import Owned from '../components/businessCard/Owned'
 import NotOwned from '../components/businessCard/NotOwned'
 import Businesses from '../data/businesses'
 import Tabs from './Tabs'
-import { useStore, moneyStore } from '../store'
+import { useStore } from '../store'
+import RestartModal from '../modals/Restart'
 import WorkersModal from '../modals/Workers'
 
 const buy_quantities = ['1', '10', '100', 'NEXT', 'MAX'] // the possible values for the tags icon in the header
@@ -13,6 +14,7 @@ const buy_quantities = ['1', '10', '100', 'NEXT', 'MAX'] // the possible values 
 export default () => {
     const { resetInitialState, gems, mega_bucks, global_multiplier, global_divisor, businesses } = useStore()
     const [buyQuantity, setBuyQuantity] = useState<string>('1')
+    const [restartModalVisible, setRestartModalVisible] = useState<boolean>(true)
     const [workersModalVisible, setWorkersModalVisible] = useState<boolean>(false)
 
     // useEffect(() => {
@@ -23,6 +25,12 @@ export default () => {
 
     return (
         <View style={styles.container}>
+            {restartModalVisible &&
+            <RestartModal
+                visible={restartModalVisible}
+                handleClose={() => setRestartModalVisible(false)}
+            />}
+
             {workersModalVisible &&
             <WorkersModal
                 visible={workersModalVisible}
@@ -58,6 +66,7 @@ export default () => {
             </ScrollView>
 
             <Tabs
+                openRestart={() => setRestartModalVisible(true)}
                 openWorkers={() => setWorkersModalVisible(true)}
             />
         </View>

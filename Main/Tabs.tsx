@@ -9,13 +9,15 @@ import colors from '../assets/ColorPalette'
 const { DARK_BLUE, GREY, BLACK } = colors
 const width = Dimensions.get('window').width
 
-export default ({ openWorkers }) => {
+export default ({ openRestart, openWorkers }) => {
     return (
         <View style={styles.tabs}>
-            <View style={styles.tabBoxRestart}>
-                <Image source={LockIcon} style={styles.lockIcon} />
-                <Text style={styles.lockText}>RESTART</Text>
-            </View>
+            <Pressable onPress={openRestart}>
+                <View style={styles.tabBoxRestart}>
+                    <Image source={LockIcon} style={styles.lockIcon} />
+                    <Text style={styles.lockText}>RESTART</Text>
+                </View>
+            </Pressable>
             <Pressable onPress={openWorkers}>
                 <View style={styles.tabBox}>
                     <Image source={WorkerIcon} style={styles.workerIcon} />
